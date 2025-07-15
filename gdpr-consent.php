@@ -23,6 +23,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 );
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
+$updateChecker->debugMode = true;
 
 define('GDPR_CONSENT_VERSION', '1.0.2');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
