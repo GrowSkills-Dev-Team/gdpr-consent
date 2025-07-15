@@ -13,17 +13,18 @@ if (!defined('ABSPATH')) {
 }
 
 // Include de plugin update checker
-require plugin_dir_path(__FILE__) . 'plugin-update-checker/plugin-update-checker.php';
+require plugin_dir_path(__FILE__) . 'plugin-update-checker-master/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
-$updateChecker = Puc_v4_Factory::buildUpdateChecker(
+$updateChecker = PucFactory::buildUpdateChecker(
     'https://github.com/GrowSkills-Dev-Team/gdpr-consent',
     __FILE__,
     'gdpr-consent' // dit moet overeenkomen met de plugin directory/slug
 );
 
-$updateChecker->setBranch('main');
+$updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '1.0.0');
+define('GDPR_CONSENT_VERSION', '1.0.1');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
