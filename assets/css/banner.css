@@ -1,0 +1,558 @@
+/* GDPR Consent Manager Styles */
+
+/* Banner Styles */
+.gdpr-banner {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 1.25rem;
+    right: 1.25rem;
+    background: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+    z-index: 999999;
+    padding: 1.5rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    max-width: 100rem;
+    margin: 0 auto;
+}
+
+.gdpr-banner-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.gdpr-banner h2 {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: 1.125rem;
+    margin: 0;
+    color: #000;
+    font-weight: 600;
+}
+
+.gdpr-banner p {
+    margin: 0;
+    color: #555;
+    flex: 1;
+}
+
+.gdpr-banner-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.gdpr-banner-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* Button Styles */
+.gdpr-btn {
+    padding: 0.75rem 1.5rem;
+    border: 0.125rem solid #000;
+    border-radius: 2rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    outline: none;
+    min-width: 7.5rem;
+}
+
+.gdpr-btn:focus {
+    outline: 0.125rem solid #000;
+    outline-offset: 0.125rem;
+}
+
+.gdpr-btn-primary {
+    background: #000;
+    color: #ffffff;
+    border-color: #000;
+}
+
+.gdpr-btn-primary:hover {
+    background: #333;
+    border-color: #333;
+}
+
+.gdpr-btn-secondary {
+    background: #ffffff;
+    color: #000;
+    border-color: #000;
+}
+
+.gdpr-btn-secondary:hover {
+    background: #f5f5f5;
+}
+
+/* Modal Styles */
+.gdpr-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Force checkboxes to be visible - important for theme compatibility */
+.gdpr-modal input[type="checkbox"] {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    position: static !important;
+    clip: auto !important;
+    padding: 0 !important;
+}
+
+.gdpr-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.gdpr-modal-content {
+    position: relative;
+    background: #ffffff;
+    border-radius: 1rem;
+    max-width: 37.5rem;
+    max-height: 90vh;
+    margin: 5vh auto;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.gdpr-modal-header {
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 0.0625rem solid #e0e0e0;
+    padding-bottom: 1rem;
+}
+
+.gdpr-modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #000;
+    font-weight: 600;
+}
+
+.gdpr-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.gdpr-modal-close:hover {
+    background: #f5f5f5;
+    color: #000;
+}
+
+.gdpr-modal-close:focus {
+    outline: 0.125rem solid #000;
+    outline-offset: 0.125rem;
+}
+
+.gdpr-modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.gdpr-modal-body p {
+    margin: 0 0 1.25rem 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+.gdpr-category {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 0.75rem;
+    border: 0.0625rem solid #e5e5e5;
+}
+
+.gdpr-category-header {
+    margin-bottom: 0.5rem;
+}
+
+.gdpr-category-header label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    color: #000;
+}
+
+/* Toggle Switch Styling */
+.gdpr-category-header input[type="checkbox"] {
+    margin-right: 1.25rem;
+    width: 3rem !important;
+    height: 1.5rem !important;
+    cursor: pointer;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
+    background: #ffffff !important;
+    border: 0.125rem solid #000000 !important;
+    border-radius: 0.75rem !important;
+    vertical-align: middle !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.gdpr-category-header input[type="checkbox"]:before {
+    content: '';
+    position: absolute;
+    top: 0.125rem;
+    left: 0.125rem;
+    width: 1rem;
+    height: 1rem;
+    background: #000000;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    transform: translateX(0);
+}
+
+.gdpr-category-header input[type="checkbox"]:checked {
+    background-color: #000000 !important;
+    border-color: #000000 !important;
+}
+
+.gdpr-category-header input[type="checkbox"]:checked:before {
+    background: #ffffff;
+    transform: translateX(1.5rem);
+}
+
+.gdpr-category-header input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.5 !important;
+}
+
+.gdpr-category-header input[type="checkbox"]:disabled:before {
+    opacity: 0.5;
+}
+
+.gdpr-category-header input[type="checkbox"]:focus {
+    outline: 0.125rem solid #000 !important;
+    outline-offset: 0.125rem !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1), 0 0 0 0.25rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.gdpr-category-title {
+    font-size: 1rem;
+}
+
+.gdpr-category-description {
+    margin: 0;
+    color: #555;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin-left: 1.875rem;
+}
+
+.gdpr-modal-footer {
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    border-top: 0.0625rem solid #e5e5e5;
+    text-align: right;
+}
+
+/* YouTube Placeholder Styles */
+.gdpr-youtube-placeholder {
+    background: #f9f9f9;
+    border: 0.125rem dashed #ccc;
+    border-radius: 0.75rem;
+    padding: 2.5rem 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 12.5rem;
+    position: relative;
+}
+
+.gdpr-youtube-placeholder:hover {
+    border-color: #000;
+    background: #f5f5f5;
+}
+
+.gdpr-youtube-placeholder:focus {
+    outline: 0.125rem solid #000;
+    outline-offset: 0.125rem;
+}
+
+.gdpr-youtube-placeholder::before {
+    content: "▶";
+    font-size: 3rem;
+    color: #ff0000;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.gdpr-youtube-placeholder-text {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.gdpr-youtube-placeholder-notice {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+}
+
+/* Small floating cookie settings button */
+.gdpr-float-button {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 3.125rem;
+    height: 3.125rem;
+    background: #000;
+    background-image: url('../images/cookie.svg');
+    background-size: 1.625rem;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 999998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.gdpr-float-button:hover {
+    background-color: #333;
+    transform: scale(1.1);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.3);
+}
+
+.gdpr-float-button:focus {
+    outline: 0.125rem solid #000;
+    outline-offset: 0.125rem;
+}
+
+.gdpr-float-button:active {
+    transform: scale(0.95);
+}
+
+.gdpr-float-button[aria-label]:hover::after {
+    content: attr(aria-label);
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: #333;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    animation: fadeIn 0.2s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(0.25rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Animation for banner hide/show */
+.gdpr-banner.gdpr-banner-hiding {
+    animation: slideOut 0.5s ease-in-out forwards;
+}
+
+.gdpr-banner.gdpr-banner-showing {
+    animation: slideIn 0.5s ease-in-out forwards;
+}
+
+.gdpr-float-button.gdpr-float-showing {
+    animation: fadeInScale 0.5s ease-in-out forwards;
+}
+
+.gdpr-float-button.gdpr-float-hiding {
+    animation: fadeOutScale 0.3s ease-in-out forwards;
+}
+
+@keyframes slideOut {
+    from { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+    to { 
+        opacity: 0; 
+        transform: translateY(100%); 
+    }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(100%); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes fadeInScale {
+    from { 
+        opacity: 0; 
+        transform: scale(0); 
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1); 
+    }
+}
+
+@keyframes fadeOutScale {
+    from { 
+        opacity: 1; 
+        transform: scale(1); 
+    }
+    to { 
+        opacity: 0; 
+        transform: scale(0); 
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 48rem) {
+    .gdpr-banner-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .gdpr-banner-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .gdpr-btn {
+        flex: 1;
+        min-width: auto;
+    }
+    
+    .gdpr-modal-content {
+        margin: 1.25rem;
+        max-height: calc(100vh - 2.5rem);
+    }
+    
+    .gdpr-modal-header,
+    .gdpr-modal-body,
+    .gdpr-modal-footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .gdpr-float-button {
+        bottom: 1rem;
+        right: 1rem;
+        width: 3rem;
+        height: 3rem;
+        background-size: 1.5rem;
+    }
+}
+
+@media (max-width: 30rem) {
+    .gdpr-banner {
+        padding: 1rem;
+    }
+    
+    .gdpr-banner-buttons {
+        flex-direction: column;
+    }
+    
+    .gdpr-modal-content {
+        margin: 0.625rem;
+        max-height: calc(100vh - 1.25rem);
+    }
+    
+    .gdpr-youtube-placeholder {
+        padding: 1.875rem 0.9375rem;
+        min-height: 9.375rem;
+    }
+    
+    .gdpr-youtube-placeholder::before {
+        font-size: 2.25rem;
+    }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+    .gdpr-btn,
+    .gdpr-modal-close,
+    .gdpr-youtube-placeholder {
+        transition: none;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .gdpr-banner {
+        border-top: 0.125rem solid #000;
+    }
+    
+    .gdpr-category {
+        border: 0.125rem solid #000;
+    }
+    
+    .gdpr-youtube-placeholder {
+        border: 0.125rem solid #000;
+    }
+}
+
+/* Focus Management */
+.gdpr-focus-trap {
+    position: relative;
+}
+
+/* Hidden state */
+.gdpr-banner[style*="display: none"],
+.gdpr-modal[style*="display: none"] {
+    display: none !important;
+}

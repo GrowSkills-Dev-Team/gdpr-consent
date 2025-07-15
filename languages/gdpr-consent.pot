@@ -1,0 +1,182 @@
+# Copyright (C) 2025 GDPR Consent Manager
+# This file is distributed under the same license as the GDPR Consent Manager package.
+msgid ""
+msgstr ""
+"Project-Id-Version: GDPR Consent Manager 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-02 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: gdpr-consent.php:67
+msgid "We use cookies"
+msgstr ""
+
+#: gdpr-consent.php:68
+msgid "This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow."
+msgstr ""
+
+#: gdpr-consent.php:69
+msgid "Accept All"
+msgstr ""
+
+#: gdpr-consent.php:70
+msgid "Settings"
+msgstr ""
+
+#: gdpr-consent.php:71
+msgid "Cookie Settings"
+msgstr ""
+
+#: gdpr-consent.php:72
+msgid "Choose which cookies you want to accept. You can change these settings at any time."
+msgstr ""
+
+#: gdpr-consent.php:73
+msgid "Functional"
+msgstr ""
+
+#: gdpr-consent.php:74
+msgid "These cookies are necessary for the website to function and cannot be switched off."
+msgstr ""
+
+#: gdpr-consent.php:75
+msgid "Statistics"
+msgstr ""
+
+#: gdpr-consent.php:76
+msgid "These cookies help us understand how visitors interact with our website."
+msgstr ""
+
+#: gdpr-consent.php:77
+msgid "Marketing"
+msgstr ""
+
+#: gdpr-consent.php:78
+msgid "These cookies are used to show you relevant advertising."
+msgstr ""
+
+#: gdpr-consent.php:79
+msgid "Embedded Media"
+msgstr ""
+
+#: gdpr-consent.php:80
+msgid "These cookies allow embedded content like YouTube videos."
+msgstr ""
+
+#: gdpr-consent.php:81
+msgid "Save Settings"
+msgstr ""
+
+#: gdpr-consent.php:82
+msgid "Close"
+msgstr ""
+
+#: gdpr-consent.php:83
+msgid "Click to load YouTube video"
+msgstr ""
+
+#: gdpr-consent.php:84
+msgid "This content is blocked until you accept embedded media cookies."
+msgstr ""
+
+#: gdpr-consent.php:109
+msgid "GDPR Consent Settings"
+msgstr ""
+
+#: gdpr-consent.php:110
+msgid "GDPR Consent"
+msgstr ""
+
+#: gdpr-consent.php:122
+msgid "Cookie Category Scripts"
+msgstr ""
+
+#: gdpr-consent.php:130
+msgid "Statistics Scripts"
+msgstr ""
+
+#: gdpr-consent.php:137
+msgid "Marketing Scripts"
+msgstr ""
+
+#: gdpr-consent.php:144
+msgid "Embedded Media Scripts"
+msgstr ""
+
+#: gdpr-consent.php:172
+msgid "Add JavaScript code for each cookie category. These scripts will only be loaded when users consent to the respective category."
+msgstr ""
+
+#: gdpr-consent.php:181
+msgid "Add Google Analytics, tracking pixels, or other statistics scripts here."
+msgstr ""
+
+#: gdpr-consent.php:190
+msgid "Add Facebook Pixel, Google Ads, or other marketing scripts here."
+msgstr ""
+
+#: gdpr-consent.php:199
+msgid "Add scripts required for embedded content like YouTube, Vimeo, etc."
+msgstr ""
+
+#: includes/settings-page.php:11
+msgid "Usage Instructions"
+msgstr ""
+
+#: includes/settings-page.php:13
+msgid "How it works:"
+msgstr ""
+
+#: includes/settings-page.php:15
+msgid "Add your tracking scripts in the appropriate categories below"
+msgstr ""
+
+#: includes/settings-page.php:16
+msgid "Scripts will only load after user consent"
+msgstr ""
+
+#: includes/settings-page.php:17
+msgid "YouTube embeds are automatically blocked until consent"
+msgstr ""
+
+#: includes/settings-page.php:18
+msgid "Consent expires after 6 months and banner will reappear"
+msgstr ""
+
+#: includes/settings-page.php:21
+msgid "Categories:"
+msgstr ""
+
+#: includes/settings-page.php:23
+msgid "Always enabled, essential for website operation"
+msgstr ""
+
+#: includes/settings-page.php:24
+msgid "Google Analytics, tracking pixels"
+msgstr ""
+
+#: includes/settings-page.php:25
+msgid "Facebook Pixel, Google Ads"
+msgstr ""
+
+#: includes/settings-page.php:26
+msgid "YouTube, Vimeo, social media embeds"
+msgstr ""
+
+#: includes/settings-page.php:32
+msgid "Example Scripts"
+msgstr ""
+
+#: includes/settings-page.php:34
+msgid "Google Analytics (Statistics):"
+msgstr ""
+
+#: includes/settings-page.php:42
+msgid "Facebook Pixel (Marketing):"
+msgstr ""
