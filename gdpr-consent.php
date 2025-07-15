@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 require plugin_dir_path(__FILE__) . 'plugin-update-checker/plugin-update-checker.php';
 
 $updateChecker = Puc_v4_Factory::buildUpdateChecker(
-    'https://github.com/jouw-github-gebruiker/jouw-plugin-repo/',
+    'https://github.com/GrowSkills-Dev-Team/gdpr-consent',
     __FILE__,
     'gdpr-consent' // dit moet overeenkomen met de plugin directory/slug
 );
