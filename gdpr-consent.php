@@ -2,7 +2,7 @@
 /*
 Plugin Name: GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 1.0.1
+Version: 1.0.2
 Author: Growskills
 Text Domain: gdpr-consent
 Domain Path: /languages
@@ -24,7 +24,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '1.0.1');
+define('GDPR_CONSENT_VERSION', '1.0.2');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
