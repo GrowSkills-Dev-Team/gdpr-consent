@@ -2,7 +2,7 @@
 /*
 Plugin Name: GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 1.0.0
+Version: 1.0.1
 Author: Growskills
 Text Domain: gdpr-consent
 Domain Path: /languages
