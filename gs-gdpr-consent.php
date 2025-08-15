@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: GDPR Consent Manager
+Plugin Name: GS GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 1.0.3
+Version: 2.0.1
 Author: Growskills
-Text Domain: gdpr-consent
+Text Domain: gs-gdpr-consent
 Domain Path: /languages
 */
 
@@ -19,13 +19,12 @@ use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 $updateChecker = PucFactory::buildUpdateChecker(
     'https://github.com/GrowSkills-Dev-Team/gdpr-consent',
     __FILE__,
-    'gdpr-consent' // dit moet overeenkomen met de plugin directory/slug
+    'gs-gdpr-consent' // dit moet overeenkomen met de plugin directory/slug
 );
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
-$updateChecker->debugMode = true;
 
-define('GDPR_CONSENT_VERSION', '1.0.3');
+define('GDPR_CONSENT_VERSION', '2.0.0');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -256,7 +255,7 @@ class GDPR_Consent_Manager {
     }
     public function load_textdomain() {
         $locale = determine_locale();
-        load_plugin_textdomain('gdpr-consent', false, dirname(plugin_basename(__FILE__)) . '/languages');
+        load_plugin_textdomain('gs-gdpr-consent', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
 
     public function enqueue_scripts() {
@@ -412,8 +411,8 @@ class GDPR_Consent_Manager {
     
     public function add_admin_menu() {
         add_options_page(
-            __('GDPR Consent Settings', 'gdpr-consent'),
-            __('GDPR Consent', 'gdpr-consent'),
+            __('GDPR Consent Settings', 'gs-gdpr-consent'),
+            __('GDPR Consent', 'gs-gdpr-consent'),
             'manage_options',
             'gdpr-consent-settings',
             array($this, 'settings_page')
@@ -427,14 +426,14 @@ class GDPR_Consent_Manager {
         
         add_settings_section(
             'gdpr_consent_scripts_section',
-            __('Cookie Category Scripts', 'gdpr-consent'),
+            __('Cookie Category Scripts', 'gs-gdpr-consent'),
             array($this, 'scripts_section_callback'),
             'gdpr-consent-settings'
         );
         
         add_settings_field(
             'statistics_scripts',
-            __('Statistics Scripts', 'gdpr-consent'),
+            __('Statistics Scripts', 'gs-gdpr-consent'),
             array($this, 'statistics_scripts_callback'),
             'gdpr-consent-settings',
             'gdpr_consent_scripts_section'
@@ -442,7 +441,7 @@ class GDPR_Consent_Manager {
         
         add_settings_field(
             'marketing_scripts',
-            __('Marketing Scripts', 'gdpr-consent'),
+            __('Marketing Scripts', 'gs-gdpr-consent'),
             array($this, 'marketing_scripts_callback'),
             'gdpr-consent-settings',
             'gdpr_consent_scripts_section'
@@ -450,7 +449,7 @@ class GDPR_Consent_Manager {
         
         add_settings_field(
             'embedded_media_scripts',
-            __('Embedded Media Scripts', 'gdpr-consent'),
+            __('Embedded Media Scripts', 'gs-gdpr-consent'),
             array($this, 'embedded_media_scripts_callback'),
             'gdpr-consent-settings',
             'gdpr_consent_scripts_section'
@@ -459,7 +458,7 @@ class GDPR_Consent_Manager {
         // Add smart detection setting
         add_settings_field(
             'smart_detect',
-            __('Smart Detection', 'gdpr-consent'),
+            __('Smart Detection', 'gs-gdpr-consent'),
             array($this, 'smart_detect_callback'),
             'gdpr-consent-settings',
             'gdpr_consent_scripts_section'
@@ -468,7 +467,7 @@ class GDPR_Consent_Manager {
         // Add category visibility settings
         add_settings_field(
             'visible_categories',
-            __('Visible Categories', 'gdpr-consent'),
+            __('Visible Categories', 'gs-gdpr-consent'),
             array($this, 'visible_categories_callback'),
             'gdpr-consent-settings',
             'gdpr_consent_scripts_section'
@@ -513,7 +512,7 @@ class GDPR_Consent_Manager {
     }
     
     public function scripts_section_callback() {
-        echo '<p>' . esc_html__('Add JavaScript code for each cookie category. These scripts will only be loaded when users consent to the respective category.', 'gdpr-consent') . '</p>';
+        echo '<p>' . esc_html__('Add JavaScript code for each cookie category. These scripts will only be loaded when users consent to the respective category.', 'gs-gdpr-consent') . '</p>';
     }
     
     public function statistics_scripts_callback() {
@@ -521,7 +520,7 @@ class GDPR_Consent_Manager {
         $value = isset($scripts['statistics']) ? $scripts['statistics'] : '';
         ?>
         <textarea name="gdpr_consent_scripts[statistics]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
-        <p class="description"><?php echo esc_html__('Add Google Analytics, tracking pixels, or other statistics scripts here.', 'gdpr-consent'); ?></p>
+        <p class="description"><?php echo esc_html__('Add Google Analytics, tracking pixels, or other statistics scripts here.', 'gs-gdpr-consent'); ?></p>
         <?php
     }
     public function marketing_scripts_callback() {
@@ -529,7 +528,7 @@ class GDPR_Consent_Manager {
         $value = isset($scripts['marketing']) ? $scripts['marketing'] : '';
         ?>
         <textarea name="gdpr_consent_scripts[marketing]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
-        <p class="description"><?php echo esc_html__('Add Facebook Pixel, Google Ads, or other marketing scripts here.', 'gdpr-consent'); ?></p>
+        <p class="description"><?php echo esc_html__('Add Facebook Pixel, Google Ads, or other marketing scripts here.', 'gs-gdpr-consent'); ?></p>
         <?php
     }
     public function embedded_media_scripts_callback() {
@@ -537,7 +536,7 @@ class GDPR_Consent_Manager {
         $value = isset($scripts['embedded_media']) ? $scripts['embedded_media'] : '';
         ?>
         <textarea name="gdpr_consent_scripts[embedded_media]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
-        <p class="description"><?php echo esc_html__('Add scripts required for embedded content like YouTube, Vimeo, etc.', 'gdpr-consent'); ?></p>
+        <p class="description"><?php echo esc_html__('Add scripts required for embedded content like YouTube, Vimeo, etc.', 'gs-gdpr-consent'); ?></p>
         <?php
     }
     
@@ -547,12 +546,12 @@ class GDPR_Consent_Manager {
         ?>
         <label>
             <input type="checkbox" name="gdpr_consent_scripts[smart_detect]" value="1" <?php checked($value, 1); ?> />
-            <?php echo esc_html__('Only show cookie banner when third-party embeds are detected (optional)', 'gdpr-consent'); ?>
+            <?php echo esc_html__('Only show cookie banner when third-party embeds are detected (optional)', 'gs-gdpr-consent'); ?>
         </label>
         <p class="description">
-            <?php echo esc_html__('By default, the cookie banner is shown on all pages for consistency and compliance. Enable this option only if you want to show the banner exclusively on pages with YouTube, Vimeo, or other third-party embeds.', 'gdpr-consent'); ?>
+            <?php echo esc_html__('By default, the cookie banner is shown on all pages for consistency and compliance. Enable this option only if you want to show the banner exclusively on pages with YouTube, Vimeo, or other third-party embeds.', 'gs-gdpr-consent'); ?>
             <br>
-            <?php echo esc_html__('Note: Add "define(\'GDPR_CONSENT_DEBUG\', true);" to wp-config.php to always show the banner during development.', 'gdpr-consent'); ?>
+            <?php echo esc_html__('Note: Add "define(\'GDPR_CONSENT_DEBUG\', true);" to wp-config.php to always show the banner during development.', 'gs-gdpr-consent'); ?>
         </p>
         <?php
     }
@@ -564,14 +563,14 @@ class GDPR_Consent_Manager {
             : array('statistics', 'marketing', 'embedded_media');
         
         $categories = array(
-            'statistics' => __('Statistics', 'gdpr-consent'),
-            'marketing' => __('Marketing', 'gdpr-consent'),
-            'embedded_media' => __('Embedded Media', 'gdpr-consent')
+            'statistics' => __('Statistics', 'gs-gdpr-consent'),
+            'marketing' => __('Marketing', 'gs-gdpr-consent'),
+            'embedded_media' => __('Embedded Media', 'gs-gdpr-consent')
         );
         ?>
         <fieldset>
-            <legend class="screen-reader-text"><?php echo esc_html__('Select which cookie categories to show to users', 'gdpr-consent'); ?></legend>
-            <p><?php echo esc_html__('Choose which cookie categories you want to show to users. Functional cookies are always shown and cannot be disabled.', 'gdpr-consent'); ?></p>
+            <legend class="screen-reader-text"><?php echo esc_html__('Select which cookie categories to show to users', 'gs-gdpr-consent'); ?></legend>
+            <p><?php echo esc_html__('Choose which cookie categories you want to show to users. Functional cookies are always shown and cannot be disabled.', 'gs-gdpr-consent'); ?></p>
             
             <?php foreach ($categories as $key => $label): ?>
                 <label style="display: block; margin-bottom: 0.5rem;">
@@ -584,7 +583,7 @@ class GDPR_Consent_Manager {
             <?php endforeach; ?>
             
             <p class="description">
-                <?php echo esc_html__('Only show categories that your website actually uses. For example, if you don\'t use Google Analytics or Facebook Pixel, you can hide the Statistics and Marketing categories.', 'gdpr-consent'); ?>
+                <?php echo esc_html__('Only show categories that your website actually uses. For example, if you don\'t use Google Analytics or Facebook Pixel, you can hide the Statistics and Marketing categories.', 'gs-gdpr-consent'); ?>
             </p>
         </fieldset>
         <?php
@@ -616,11 +615,11 @@ class GDPR_Consent_Manager {
     
     private function get_text($english, $dutch) {
         $locale = get_locale();
-        if (($locale === 'nl_NL' || strpos($locale, 'nl') === 0) && __($english, 'gdpr-consent') === $english) {
+        if (($locale === 'nl_NL' || strpos($locale, 'nl') === 0) && __($english, 'gs-gdpr-consent') === $english) {
             return $dutch;
         }
         
-        return __($english, 'gdpr-consent');
+        return __($english, 'gs-gdpr-consent');
     }
     
     /**

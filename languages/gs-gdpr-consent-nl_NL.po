@@ -15,115 +15,115 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: gdpr-consent.php:67
+#: gs-gdpr-consent.php:67
 msgid "We use cookies"
 msgstr "Wij gebruiken cookies"
 
-#: gdpr-consent.php:68
+#: gs-gdpr-consent.php:68
 msgid "This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow."
 msgstr "Deze website gebruikt cookies om ervoor te zorgen dat u de beste ervaring op onze website krijgt. U kunt kiezen welke categorieën cookies u toestaat."
 
-#: gdpr-consent.php:69
+#: gs-gdpr-consent.php:69
 msgid "Accept All"
 msgstr "Alles accepteren"
 
-#: gdpr-consent.php:70
+#: gs-gdpr-consent.php:70
 msgid "Settings"
 msgstr "Instellingen"
 
-#: gdpr-consent.php:71
+#: gs-gdpr-consent.php:71
 msgid "Cookie Settings"
 msgstr "Cookie-instellingen"
 
-#: gdpr-consent.php:72
+#: gs-gdpr-consent.php:72
 msgid "Choose which cookies you want to accept. You can change these settings at any time."
 msgstr "Kies welke cookies u wilt accepteren. U kunt deze instellingen op elk moment wijzigen."
 
-#: gdpr-consent.php:73
+#: gs-gdpr-consent.php:73
 msgid "Functional"
 msgstr "Functioneel"
 
-#: gdpr-consent.php:74
+#: gs-gdpr-consent.php:74
 msgid "These cookies are necessary for the website to function and cannot be switched off."
 msgstr "Deze cookies zijn noodzakelijk voor het functioneren van de website en kunnen niet worden uitgeschakeld."
 
-#: gdpr-consent.php:75
+#: gs-gdpr-consent.php:75
 msgid "Statistics"
 msgstr "Statistieken"
 
-#: gdpr-consent.php:76
+#: gs-gdpr-consent.php:76
 msgid "These cookies help us understand how visitors interact with our website."
 msgstr "Deze cookies helpen ons begrijpen hoe bezoekers omgaan met onze website."
 
-#: gdpr-consent.php:77
+#: gs-gdpr-consent.php:77
 msgid "Marketing"
 msgstr "Marketing"
 
-#: gdpr-consent.php:78
+#: gs-gdpr-consent.php:78
 msgid "These cookies are used to show you relevant advertising."
 msgstr "Deze cookies worden gebruikt om u relevante advertenties te tonen."
 
-#: gdpr-consent.php:79
+#: gs-gdpr-consent.php:79
 msgid "Embedded Media"
 msgstr "Ingesloten media"
 
-#: gdpr-consent.php:80
+#: gs-gdpr-consent.php:80
 msgid "These cookies allow embedded content like YouTube videos."
 msgstr "Deze cookies maken ingesloten content zoals YouTube-video's mogelijk."
 
-#: gdpr-consent.php:81
+#: gs-gdpr-consent.php:81
 msgid "Save Settings"
 msgstr "Instellingen opslaan"
 
-#: gdpr-consent.php:82
+#: gs-gdpr-consent.php:82
 msgid "Close"
 msgstr "Sluiten"
 
-#: gdpr-consent.php:83
+#: gs-gdpr-consent.php:83
 msgid "Click to load YouTube video"
 msgstr "Klik om YouTube-video te laden"
 
-#: gdpr-consent.php:84
+#: gs-gdpr-consent.php:84
 msgid "This content is blocked until you accept embedded media cookies."
 msgstr "Deze content is geblokkeerd totdat u cookies voor ingesloten media accepteert."
 
-#: gdpr-consent.php:109
+#: gs-gdpr-consent.php:109
 msgid "GDPR Consent Settings"
 msgstr "GDPR-toestemmingsinstellingen"
 
-#: gdpr-consent.php:110
+#: gs-gdpr-consent.php:110
 msgid "GDPR Consent"
 msgstr "GDPR-toestemming"
 
-#: gdpr-consent.php:122
+#: gs-gdpr-consent.php:122
 msgid "Cookie Category Scripts"
 msgstr "Cookie-categorie scripts"
 
-#: gdpr-consent.php:130
+#: gs-gdpr-consent.php:130
 msgid "Statistics Scripts"
 msgstr "Statistiek-scripts"
 
-#: gdpr-consent.php:137
+#: gs-gdpr-consent.php:137
 msgid "Marketing Scripts"
 msgstr "Marketing-scripts"
 
-#: gdpr-consent.php:144
+#: gs-gdpr-consent.php:144
 msgid "Embedded Media Scripts"
 msgstr "Ingesloten media-scripts"
 
-#: gdpr-consent.php:172
+#: gs-gdpr-consent.php:172
 msgid "Add JavaScript code for each cookie category. These scripts will only be loaded when users consent to the respective category."
 msgstr "Voeg JavaScript-code toe voor elke cookie-categorie. Deze scripts worden alleen geladen wanneer gebruikers toestemming geven voor de betreffende categorie."
 
-#: gdpr-consent.php:181
+#: gs-gdpr-consent.php:181
 msgid "Add Google Analytics, tracking pixels, or other statistics scripts here."
 msgstr "Voeg hier Google Analytics, tracking pixels of andere statistiek-scripts toe."
 
-#: gdpr-consent.php:190
+#: gs-gdpr-consent.php:190
 msgid "Add Facebook Pixel, Google Ads, or other marketing scripts here."
 msgstr "Voeg hier Facebook Pixel, Google Ads of andere marketing-scripts toe."
 
-#: gdpr-consent.php:199
+#: gs-gdpr-consent.php:199
 msgid "Add scripts required for embedded content like YouTube, Vimeo, etc."
 msgstr "Voeg scripts toe die vereist zijn voor ingesloten content zoals YouTube, Vimeo, etc."
 

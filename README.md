@@ -199,15 +199,15 @@ window.gdprShowSettings();
 
 The plugin is WPML-ready with all strings wrapped in `__()` functions:
 
-- Text domain: `gdpr-consent`
+- Text domain: `gs-gdpr-consent`
 - POT file included for translations
 - Example Dutch (nl_NL) translation provided
 
 ### Adding Translations
 
-1. Copy `/languages/gdpr-consent.pot` to your language file
+1. Copy `/languages/gs-gdpr-consent.pot` to your language file
 2. Translate strings using Poedit or similar tools
-3. Save as `gdpr-consent-{locale}.po` in the languages folder
+3. Save as `gs-gdpr-consent-{locale}.po` in the languages folder
 
 ## Consent Storage
 
@@ -233,8 +233,8 @@ The plugin is designed to work with caching plugins:
 ## File Structure
 
 ```
-/gdpr-consent/
-├── gdpr-consent.php          # Main plugin file
+/gs-gdpr-consent/
+├── gs-gdpr-consent.php          # Main plugin file
 ├── includes/
 │   └── settings-page.php     # Admin settings page
 ├── assets/
@@ -243,8 +243,8 @@ The plugin is designed to work with caching plugins:
 │   └── js/
 │       └── banner.js         # Consent management logic
 └── languages/
-    ├── gdpr-consent.pot      # Translation template
-    └── gdpr-consent-nl_NL.po # Dutch translation
+    ├── gs-gdpr-consent.pot      # Translation template
+    └── gs-gdpr-consent-nl_NL.po # Dutch translation
 ```
 
 ## Browser Support

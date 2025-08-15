@@ -4,8 +4,8 @@
 
 require_once(dirname(__FILE__) . '/../../../../wp-config.php');
 
-$po_file = dirname(__FILE__) . '/gdpr-consent-nl_NL.po';
-$mo_file = dirname(__FILE__) . '/gdpr-consent-nl_NL.mo';
+$po_file = dirname(__FILE__) . '/gs-gdpr-consent-nl_NL.po';
+$mo_file = dirname(__FILE__) . '/gs-gdpr-consent-nl_NL.mo';
 
 // Include WordPress POMO classes
 require_once(ABSPATH . 'wp-includes/pomo/po.php');
