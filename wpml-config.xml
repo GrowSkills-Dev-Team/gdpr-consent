@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wpml-config>
+    <admin-texts>
+        <key name="gdpr_consent_scripts">
+            <key name="cookie_banner_title" />
+            <key name="cookie_banner_text" />
+            <key name="modal_title" />
+            <key name="modal_description" />
+            <key name="functional_title" />
+            <key name="functional_description" />
+            <key name="statistics_title" />
+            <key name="statistics_description" />
+            <key name="marketing_title" />
+            <key name="marketing_description" />
+            <key name="embedded_media_title" />
+            <key name="embedded_media_description" />
+            <key name="accept_all_text" />
+            <key name="settings_text" />
+            <key name="save_text" />
+            <key name="close_text" />
+            <key name="youtube_load_button" />
+            <key name="youtube_notice" />
+        </key>
+    </admin-texts>
+</wpml-config>

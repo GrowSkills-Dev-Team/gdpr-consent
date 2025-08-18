@@ -2,7 +2,7 @@
 /*
 Plugin Name: GS GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 2.0.4
+Version: 2.0.5
 Author: Growskills
 Text Domain: gs-gdpr-consent
 Domain Path: /languages
@@ -24,7 +24,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '2.0.4');
+define('GDPR_CONSENT_VERSION', '2.0.5');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -32,6 +32,7 @@ class GDPR_Consent_Manager {
     
     public function __construct() {
         add_action('init', array($this, 'load_textdomain'));
+        add_action('init', array($this, 'register_wpml_strings'), 99);
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('wp_footer', array($this, 'debug_embed_detection'));
@@ -96,6 +97,10 @@ class GDPR_Consent_Manager {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('wp_footer', array($this, 'render_banner'));
         add_action('wp_head', array($this, 'block_scripts'), 1);
+        
+        // Block YouTube IFrame API unless user has embedded media consent
+        add_action('wp_enqueue_scripts', array($this, 'block_youtube_api'), 1);
+        add_action('wp_print_scripts', array($this, 'block_youtube_api_scripts'), 1);
         
         // Add AJAX handlers for fetching scripts after consent
         add_action('wp_ajax_gdpr_get_scripts', array($this, 'ajax_get_scripts'));
@@ -262,6 +267,45 @@ class GDPR_Consent_Manager {
         load_plugin_textdomain('gs-gdpr-consent', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
 
+    /**
+     * Register strings with WPML for translation
+     */
+    public function register_wpml_strings() {
+        if (function_exists('icl_register_string')) {
+            // Register all translatable strings with WPML
+            icl_register_string('gs-gdpr-consent', 'We use cookies', 'We use cookies');
+            icl_register_string('gs-gdpr-consent', 'Cookie banner text', 'This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow.');
+            icl_register_string('gs-gdpr-consent', 'Accept All', 'Accept All');
+            icl_register_string('gs-gdpr-consent', 'Settings', 'Settings');
+            icl_register_string('gs-gdpr-consent', 'Cookie Settings', 'Cookie Settings');
+            icl_register_string('gs-gdpr-consent', 'Modal description', 'Choose which cookies you want to accept. You can change these settings at any time.');
+            icl_register_string('gs-gdpr-consent', 'Functional', 'Functional');
+            icl_register_string('gs-gdpr-consent', 'Functional description', 'These cookies are necessary for the website to function and cannot be switched off.');
+            icl_register_string('gs-gdpr-consent', 'Statistics', 'Statistics');
+            icl_register_string('gs-gdpr-consent', 'Statistics description', 'These cookies help us understand how visitors interact with our website.');
+            icl_register_string('gs-gdpr-consent', 'Marketing', 'Marketing');
+            icl_register_string('gs-gdpr-consent', 'Marketing description', 'These cookies are used to show you relevant advertising.');
+            icl_register_string('gs-gdpr-consent', 'Embedded Media', 'Embedded Media');
+            icl_register_string('gs-gdpr-consent', 'Embedded Media description', 'These cookies allow embedded content like YouTube videos.');
+            icl_register_string('gs-gdpr-consent', 'Save Settings', 'Save Settings');
+            icl_register_string('gs-gdpr-consent', 'Close', 'Close');
+            icl_register_string('gs-gdpr-consent', 'YouTube load button', 'Click to load YouTube video');
+            icl_register_string('gs-gdpr-consent', 'YouTube notice', 'This content is blocked until you accept embedded media cookies. Click here to change your settings.');
+            icl_register_string('gs-gdpr-consent', 'GDPR Consent Settings', 'GDPR Consent Settings');
+            icl_register_string('gs-gdpr-consent', 'GDPR Consent', 'GDPR Consent');
+        }
+    }
+
+    /**
+     * Get translated string with WPML support
+     */
+    private function get_wpml_string($name, $original_value, $context = 'gs-gdpr-consent') {
+        if (function_exists('icl_t')) {
+            return icl_t($context, $name, $original_value);
+        }
+        return __($original_value, 'gs-gdpr-consent');
+    }
+
     public function enqueue_scripts() {
         wp_enqueue_style(
             'gdpr-consent-banner',
@@ -317,24 +361,24 @@ class GDPR_Consent_Manager {
             'nonce' => wp_create_nonce('gdpr_get_scripts')
         ));
         wp_localize_script('gdpr-consent-banner', 'gdprTexts', array(
-            'cookieBannerTitle' => $this->get_text('We use cookies', 'Wij gebruiken cookies'),
-            'cookieBannerText' => $this->get_text('This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow.', 'Deze website gebruikt cookies om ervoor te zorgen dat u de beste ervaring op onze website krijgt. U kunt kiezen welke categorieën cookies u toestaat.'),
-            'acceptAll' => $this->get_text('Accept All', 'Alles accepteren'),
-            'settings' => $this->get_text('Settings', 'Instellingen'),
-            'modalTitle' => $this->get_text('Cookie Settings', 'Cookie-instellingen'),
-            'modalDescription' => $this->get_text('Choose which cookies you want to accept. You can change these settings at any time.', 'Kies welke cookies u wilt accepteren. U kunt deze instellingen op elk moment wijzigen.'),
-            'functional' => $this->get_text('Functional', 'Functioneel'),
-            'functionalDescription' => $this->get_text('These cookies are necessary for the website to function and cannot be switched off.', 'Deze cookies zijn noodzakelijk voor het functioneren van de website en kunnen niet worden uitgeschakeld.'),
-            'statistics' => $this->get_text('Statistics', 'Statistieken'),
-            'statisticsDescription' => $this->get_text('These cookies help us understand how visitors interact with our website.', 'Deze cookies helpen ons begrijpen hoe bezoekers omgaan met onze website.'),
-            'marketing' => $this->get_text('Marketing', 'Marketing'),
-            'marketingDescription' => $this->get_text('These cookies are used to show you relevant advertising.', 'Deze cookies worden gebruikt om u relevante advertenties te tonen.'),
-            'embeddedMedia' => $this->get_text('Embedded Media', 'Ingesloten media'),
-            'embeddedMediaDescription' => $this->get_text('These cookies allow embedded content like YouTube videos.', 'Deze cookies maken ingesloten content zoals YouTube-video\'s mogelijk.'),
-            'save' => $this->get_text('Save Settings', 'Instellingen opslaan'),
-            'close' => $this->get_text('Close', 'Sluiten'),
-            'youtubeLoadButton' => $this->get_text('Click to load YouTube video', 'Klik om YouTube-video te laden'),
-            'youtubeNotice' => $this->get_text('This content is blocked until you accept embedded media cookies. Click here to change your settings.', 'Deze content is geblokkeerd totdat u cookies voor ingesloten media accepteert. Klik hier om uw instellingen te wijzigen.')
+            'cookieBannerTitle' => $this->get_wpml_string('We use cookies', 'We use cookies'),
+            'cookieBannerText' => $this->get_wpml_string('Cookie banner text', 'This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow.'),
+            'acceptAll' => $this->get_wpml_string('Accept All', 'Accept All'),
+            'settings' => $this->get_wpml_string('Settings', 'Settings'),
+            'modalTitle' => $this->get_wpml_string('Cookie Settings', 'Cookie Settings'),
+            'modalDescription' => $this->get_wpml_string('Modal description', 'Choose which cookies you want to accept. You can change these settings at any time.'),
+            'functional' => $this->get_wpml_string('Functional', 'Functional'),
+            'functionalDescription' => $this->get_wpml_string('Functional description', 'These cookies are necessary for the website to function and cannot be switched off.'),
+            'statistics' => $this->get_wpml_string('Statistics', 'Statistics'),
+            'statisticsDescription' => $this->get_wpml_string('Statistics description', 'These cookies help us understand how visitors interact with our website.'),
+            'marketing' => $this->get_wpml_string('Marketing', 'Marketing'),
+            'marketingDescription' => $this->get_wpml_string('Marketing description', 'These cookies are used to show you relevant advertising.'),
+            'embeddedMedia' => $this->get_wpml_string('Embedded Media', 'Embedded Media'),
+            'embeddedMediaDescription' => $this->get_wpml_string('Embedded Media description', 'These cookies allow embedded content like YouTube videos.'),
+            'save' => $this->get_wpml_string('Save Settings', 'Save Settings'),
+            'close' => $this->get_wpml_string('Close', 'Close'),
+            'youtubeLoadButton' => $this->get_wpml_string('YouTube load button', 'Click to load YouTube video'),
+            'youtubeNotice' => $this->get_wpml_string('YouTube notice', 'This content is blocked until you accept embedded media cookies. Click here to change your settings.')
         ));
     }
 
@@ -402,44 +446,44 @@ class GDPR_Consent_Manager {
         <div id="gdpr-consent-banner" class="gdpr-banner" role="dialog" aria-labelledby="gdpr-banner-title" aria-describedby="gdpr-banner-description" style="display: none;">
             <div class="gdpr-banner-content">
                 <div class="gdpr-banner-text">
-                    <h2 id="gdpr-banner-title"><?php echo esc_html($this->get_text('We use cookies', 'Wij gebruiken cookies')); ?></h2>
-                    <p id="gdpr-banner-description"><?php echo esc_html($this->get_text('This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow.', 'Deze website gebruikt cookies om ervoor te zorgen dat u de beste ervaring op onze website krijgt. U kunt kiezen welke categorieën cookies u toestaat.')); ?></p>
+                    <h2 id="gdpr-banner-title"><?php echo esc_html($this->get_wpml_string('We use cookies', 'We use cookies')); ?></h2>
+                    <p id="gdpr-banner-description"><?php echo esc_html($this->get_wpml_string('Cookie banner text', 'This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow.')); ?></p>
                 </div>
                 <div class="gdpr-banner-buttons">
                     <button id="gdpr-accept-all" class="gdpr-btn gdpr-btn-primary" type="button">
-                        <?php echo esc_html($this->get_text('Accept All', 'Alles accepteren')); ?>
+                        <?php echo esc_html($this->get_wpml_string('Accept All', 'Accept All')); ?>
                     </button>
                     <button id="gdpr-settings" class="gdpr-btn gdpr-btn-secondary" type="button">
-                        <?php echo esc_html($this->get_text('Settings', 'Instellingen')); ?>
+                        <?php echo esc_html($this->get_wpml_string('Settings', 'Settings')); ?>
                     </button>
                 </div>
             </div>
         </div>
         
-        <button id="gdpr-float-button" class="gdpr-float-button" type="button" aria-label="<?php echo esc_attr($this->get_text('Cookie Settings', 'Cookie-instellingen')); ?>" style="display: none;">
+        <button id="gdpr-float-button" class="gdpr-float-button" type="button" aria-label="<?php echo esc_attr($this->get_wpml_string('Cookie Settings', 'Cookie Settings')); ?>" style="display: none;">
         </button>
         
         <div id="gdpr-consent-modal" class="gdpr-modal" role="dialog" aria-labelledby="gdpr-modal-title" aria-describedby="gdpr-modal-description" style="display: none;">
             <div class="gdpr-modal-overlay"></div>
             <div class="gdpr-modal-content" role="document">
                 <div class="gdpr-modal-header">
-                    <h2 id="gdpr-modal-title"><?php echo esc_html($this->get_text('Cookie Settings', 'Cookie-instellingen')); ?></h2>
-                    <button id="gdpr-modal-close" class="gdpr-modal-close" type="button" aria-label="<?php echo esc_attr($this->get_text('Close', 'Sluiten')); ?>">
+                    <h2 id="gdpr-modal-title"><?php echo esc_html($this->get_wpml_string('Cookie Settings', 'Cookie Settings')); ?></h2>
+                    <button id="gdpr-modal-close" class="gdpr-modal-close" type="button" aria-label="<?php echo esc_attr($this->get_wpml_string('Close', 'Close')); ?>">
                         &times;
                     </button>
                 </div>
                 <div class="gdpr-modal-body">
-                    <p id="gdpr-modal-description"><?php echo esc_html($this->get_text('Choose which cookies you want to accept. You can change these settings at any time.', 'Kies welke cookies u wilt accepteren. U kunt deze instellingen op elk moment wijzigen.')); ?></p>
+                    <p id="gdpr-modal-description"><?php echo esc_html($this->get_wpml_string('Modal description', 'Choose which cookies you want to accept. You can change these settings at any time.')); ?></p>
                     
                     <!-- Functional cookies (always shown) -->
                     <div class="gdpr-category">
                         <div class="gdpr-category-header">
                             <label>
                                 <input type="checkbox" id="gdpr-functional" checked disabled>
-                                <span class="gdpr-category-title"><?php echo esc_html($this->get_text('Functional', 'Functioneel')); ?></span>
+                                <span class="gdpr-category-title"><?php echo esc_html($this->get_wpml_string('Functional', 'Functional')); ?></span>
                             </label>
                         </div>
-                        <p class="gdpr-category-description"><?php echo esc_html($this->get_text('These cookies are necessary for the website to function and cannot be switched off.', 'Deze cookies zijn noodzakelijk voor het functioneren van de website en kunnen niet worden uitgeschakeld.')); ?></p>
+                        <p class="gdpr-category-description"><?php echo esc_html($this->get_wpml_string('Functional description', 'These cookies are necessary for the website to function and cannot be switched off.')); ?></p>
                     </div>
                     
                     <?php
@@ -455,10 +499,10 @@ class GDPR_Consent_Manager {
                         <div class="gdpr-category-header">
                             <label>
                                 <input type="checkbox" id="gdpr-statistics">
-                                <span class="gdpr-category-title"><?php echo esc_html($this->get_text('Statistics', 'Statistieken')); ?></span>
+                                <span class="gdpr-category-title"><?php echo esc_html($this->get_wpml_string('Statistics', 'Statistics')); ?></span>
                             </label>
                         </div>
-                        <p class="gdpr-category-description"><?php echo esc_html($this->get_text('These cookies help us understand how visitors interact with our website.', 'Deze cookies helpen ons begrijpen hoe bezoekers omgaan met onze website.')); ?></p>
+                        <p class="gdpr-category-description"><?php echo esc_html($this->get_wpml_string('Statistics description', 'These cookies help us understand how visitors interact with our website.')); ?></p>
                     </div>
                     <?php endif; ?>
                     
@@ -469,10 +513,10 @@ class GDPR_Consent_Manager {
                         <div class="gdpr-category-header">
                             <label>
                                 <input type="checkbox" id="gdpr-marketing">
-                                <span class="gdpr-category-title"><?php echo esc_html($this->get_text('Marketing', 'Marketing')); ?></span>
+                                <span class="gdpr-category-title"><?php echo esc_html($this->get_wpml_string('Marketing', 'Marketing')); ?></span>
                             </label>
                         </div>
-                        <p class="gdpr-category-description"><?php echo esc_html($this->get_text('These cookies are used to show you relevant advertising.', 'Deze cookies worden gebruikt om u relevante advertenties te tonen.')); ?></p>
+                        <p class="gdpr-category-description"><?php echo esc_html($this->get_wpml_string('Marketing description', 'These cookies are used to show you relevant advertising.')); ?></p>
                     </div>
                     <?php endif; ?>
                     
@@ -483,16 +527,16 @@ class GDPR_Consent_Manager {
                         <div class="gdpr-category-header">
                             <label>
                                 <input type="checkbox" id="gdpr-embedded-media">
-                                <span class="gdpr-category-title"><?php echo esc_html($this->get_text('Embedded Media', 'Ingesloten media')); ?></span>
+                                <span class="gdpr-category-title"><?php echo esc_html($this->get_wpml_string('Embedded Media', 'Embedded Media')); ?></span>
                             </label>
                         </div>
-                        <p class="gdpr-category-description"><?php echo esc_html($this->get_text('These cookies allow embedded content like YouTube videos.', 'Deze cookies maken ingesloten content zoals YouTube-video\'s mogelijk.')); ?></p>
+                        <p class="gdpr-category-description"><?php echo esc_html($this->get_wpml_string('Embedded Media description', 'These cookies allow embedded content like YouTube videos.')); ?></p>
                     </div>
                     <?php endif; ?>
                 </div>
                 <div class="gdpr-modal-footer">
                     <button id="gdpr-save-settings" class="gdpr-btn gdpr-btn-primary" type="button">
-                        <?php echo esc_html($this->get_text('Save Settings', 'Instellingen opslaan')); ?>
+                        <?php echo esc_html($this->get_wpml_string('Save Settings', 'Save Settings')); ?>
                     </button>
                 </div>
             </div>
@@ -502,8 +546,8 @@ class GDPR_Consent_Manager {
     
     public function add_admin_menu() {
         add_options_page(
-            __('GDPR Consent Settings', 'gs-gdpr-consent'),
-            __('GDPR Consent', 'gs-gdpr-consent'),
+            $this->get_wpml_string('GDPR Consent Settings', 'GDPR Consent Settings'),
+            $this->get_wpml_string('GDPR Consent', 'GDPR Consent'),
             'manage_options',
             'gdpr-consent-settings',
             array($this, 'settings_page')
@@ -707,12 +751,8 @@ class GDPR_Consent_Manager {
         }
     }
     
-    private function get_text($english, $dutch) {
-        $locale = get_locale();
-        if (($locale === 'nl_NL' || strpos($locale, 'nl') === 0) && __($english, 'gs-gdpr-consent') === $english) {
-            return $dutch;
-        }
-        
+    private function get_text($english, $dutch = '') {
+        // For backwards compatibility, but encourage using __() directly
         return __($english, 'gs-gdpr-consent');
     }
     
@@ -790,6 +830,79 @@ class GDPR_Consent_Manager {
         }
         
         wp_send_json_success($response);
+    }
+    
+    /**
+     * Block YouTube IFrame API scripts if no embedded media consent
+     */
+    public function block_youtube_api() {
+        // Check if user has embedded media consent
+        $has_consent = false;
+        if (isset($_COOKIE['gdprConsent'])) {
+            $consent = json_decode(stripslashes($_COOKIE['gdprConsent']), true);
+            if ($consent && isset($consent['embedded_media']) && $consent['embedded_media']) {
+                $has_consent = true;
+            }
+        }
+        
+        if (!$has_consent) {
+            // Dequeue YouTube API scripts that might be loaded by themes/plugins
+            wp_dequeue_script('youtube-iframe-api');
+            wp_dequeue_script('youtube-api');
+            wp_dequeue_script('yt-iframe-api');
+            wp_dequeue_script('google-youtube-api');
+            
+            // Remove scripts with YouTube API URLs
+            global $wp_scripts;
+            if (isset($wp_scripts->queue)) {
+                foreach ($wp_scripts->queue as $handle) {
+                    if (isset($wp_scripts->registered[$handle])) {
+                        $script = $wp_scripts->registered[$handle];
+                        if (strpos($script->src, 'youtube.com/iframe_api') !== false ||
+                            strpos($script->src, 'youtube.com/player_api') !== false) {
+                            wp_dequeue_script($handle);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Block YouTube API scripts in the HTML output if no consent
+     */
+    public function block_youtube_api_scripts() {
+        // Check if user has embedded media consent
+        $has_consent = false;
+        if (isset($_COOKIE['gdprConsent'])) {
+            $consent = json_decode(stripslashes($_COOKIE['gdprConsent']), true);
+            if ($consent && isset($consent['embedded_media']) && $consent['embedded_media']) {
+                $has_consent = true;
+            }
+        }
+        
+        if (!$has_consent) {
+            // Start output buffering to catch and modify script tags
+            ob_start(array($this, 'filter_youtube_api_scripts'));
+        }
+    }
+    
+    /**
+     * Filter YouTube API scripts from HTML output
+     */
+    public function filter_youtube_api_scripts($buffer) {
+        // Remove YouTube IFrame API script tags
+        $patterns = array(
+            '/<script[^>]*src=["\']?[^"\']*youtube\.com\/iframe_api[^"\']*["\']?[^>]*><\/script>/i',
+            '/<script[^>]*src=["\']?[^"\']*youtube\.com\/player_api[^"\']*["\']?[^>]*><\/script>/i',
+            '/<script[^>]*>.*?youtube\.com\/iframe_api.*?<\/script>/is',
+        );
+        
+        foreach ($patterns as $pattern) {
+            $buffer = preg_replace($pattern, '<!-- YouTube API script blocked by GDPR consent -->', $buffer);
+        }
+        
+        return $buffer;
     }
 }
 new GDPR_Consent_Manager();

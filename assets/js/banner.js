@@ -43,18 +43,8 @@
         
         if (!banner || !modal || !floatButton) {
             console.warn('GDPR Consent Manager: Banner, modal, or float button not found');
-            console.log('Banner element:', banner);
-            console.log('Modal element:', modal);
-            console.log('Float button element:', floatButton);
             return;
         }
-        
-        // Debug: Check if checkboxes are found
-        const checkboxes = modal.querySelectorAll('input[type="checkbox"]');
-        console.log('GDPR Consent Manager: Found', checkboxes.length, 'checkboxes');
-        checkboxes.forEach((checkbox, index) => {
-            console.log(`Checkbox ${index}:`, checkbox.id, checkbox.checked, checkbox.disabled);
-        });
         
         // Load existing consent
         loadConsent();
@@ -95,7 +85,6 @@
                 const parsed = JSON.parse(stored);
                 if (parsed && parsed.timestamp) {
                     consentData = { ...consentData, ...parsed };
-                    console.log('GDPR: Consent loaded:', consentData);
                 }
             }
         } catch (e) {
@@ -118,8 +107,6 @@
             expireDate.setMonth(expireDate.getMonth() + CONSENT_EXPIRY_MONTHS);
             
             document.cookie = `gdprConsent=${encodeURIComponent(JSON.stringify(consentData))}; expires=${expireDate.toUTCString()}; path=/; SameSite=Lax`;
-            
-            console.log('GDPR: Consent saved:', consentData);
         } catch (e) {
             console.warn('GDPR Consent Manager: Error saving consent data', e);
         }
@@ -263,17 +250,11 @@
             'gdpr-marketing': consentData.marketing,
             'gdpr-embedded-media': consentData.embedded_media
         };
-        
-        console.log('GDPR: Updating checkboxes with consent data:', consentData);
-        
+            
         Object.keys(checkboxes).forEach(id => {
             const checkbox = document.getElementById(id);
             if (checkbox) {
                 checkbox.checked = checkboxes[id];
-                console.log(`GDPR: Set ${id} to ${checkboxes[id]}`);
-            } else {
-                // Don't warn if checkbox doesn't exist - it might be hidden by admin settings
-                console.log(`GDPR: Checkbox ${id} not found (might be hidden by admin settings)`);
             }
         });
     }
@@ -419,34 +400,22 @@
      * Load approved scripts based on consent
      */
     function loadApprovedScripts() {
-        console.log('GDPR: loadApprovedScripts called');
-        console.log('GDPR: Current consent data:', consentData);
-        console.log('GDPR: gdprScripts available:', typeof gdprScripts !== 'undefined');
-        
-        if (typeof gdprScripts !== 'undefined') {
-            console.log('GDPR: gdprScripts content:', gdprScripts);
-        }
-        
         // Check if we already have scripts available
         if (typeof gdprScripts !== 'undefined') {
             // Load scripts directly if available
             if (consentData.statistics && gdprScripts.statistics) {
-                console.log('GDPR: Loading statistics script');
                 loadScript('statistics', gdprScripts.statistics);
             }
             
             if (consentData.marketing && gdprScripts.marketing) {
-                console.log('GDPR: Loading marketing script');
                 loadScript('marketing', gdprScripts.marketing);
             }
             
             if (consentData.embedded_media && gdprScripts.embedded_media) {
-                console.log('GDPR: Loading embedded_media script');
                 loadScript('embedded_media', gdprScripts.embedded_media);
             }
         } else {
             // Scripts not available - fetch via AJAX
-            console.log('GDPR: Scripts not available, fetching via AJAX');
             fetchScriptsViaAjax();
         }
     }
@@ -455,15 +424,9 @@
      * Fetch scripts via AJAX based on current consent
      */
     function fetchScriptsViaAjax() {
-        console.log('GDPR: fetchScriptsViaAjax called');
-        console.log('GDPR: Current consent for AJAX:', consentData);
-        
         if (typeof gdprAjax === 'undefined') {
-            console.warn('GDPR: AJAX configuration not available');
             return;
         }
-        
-        console.log('GDPR: Making AJAX request to:', gdprAjax.url);
         
         // Prepare form data
         const formData = new FormData();
@@ -478,28 +441,19 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log('GDPR: AJAX response received:', data);
-            
             if (data.success && data.data) {
-                console.log('GDPR: Scripts received from AJAX:', data.data);
-                
                 // Load the scripts we received
                 if (consentData.statistics && data.data.statistics) {
-                    console.log('GDPR: Loading statistics script from AJAX');
                     loadScript('statistics', data.data.statistics);
                 }
                 
                 if (consentData.marketing && data.data.marketing) {
-                    console.log('GDPR: Loading marketing script from AJAX');
                     loadScript('marketing', data.data.marketing);
                 }
                 
                 if (consentData.embedded_media && data.data.embedded_media) {
-                    console.log('GDPR: Loading embedded_media script from AJAX');
                     loadScript('embedded_media', data.data.embedded_media);
                 }
-            } else {
-                console.log('GDPR: AJAX request failed or no data received');
             }
         })
         .catch(error => {
@@ -549,8 +503,6 @@
                 // Replace old script with new one
                 script.parentNode.replaceChild(newScript, script);
             });
-            
-            console.log(`GDPR Consent Manager: Loaded ${category} scripts`);
         } catch (e) {
             console.warn(`GDPR Consent Manager: Error loading ${category} scripts`, e);
         }
@@ -562,7 +514,7 @@
     function processYouTubeEmbeds() {
         const youtubeIframes = document.querySelectorAll('iframe[src*="youtube.com"], iframe[src*="youtu.be"]');
         
-        youtubeIframes.forEach(iframe => {
+        youtubeIframes.forEach((iframe, index) => {
             if (consentData.embedded_media) {
                 // Consent given - ensure iframe is visible
                 showYouTubeEmbed(iframe);
@@ -575,12 +527,29 @@
         // Also process existing placeholders if consent is now given
         if (consentData.embedded_media) {
             const placeholders = document.querySelectorAll('.gdpr-youtube-placeholder');
-            placeholders.forEach(placeholder => {
-                const originalSrc = placeholder.getAttribute('data-youtube-src');
-                if (originalSrc) {
-                    restoreYouTubeEmbed(placeholder, originalSrc);
+            
+            if (placeholders.length > 0) {
+                // For YouTube embeds with API, just refresh the page for reliable functionality
+                const hasYouTubeAPI = Array.from(placeholders).some(placeholder => {
+                    const src = placeholder.getAttribute('data-youtube-src');
+                    return src && src.includes('enablejsapi=1');
+                });
+                
+                if (hasYouTubeAPI) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                    return;
                 }
-            });
+                
+                // For simple YouTube embeds without API, restore normally
+                placeholders.forEach((placeholder, index) => {
+                    const originalSrc = placeholder.getAttribute('data-youtube-src');
+                    if (originalSrc) {
+                        restoreYouTubeEmbed(placeholder, originalSrc);
+                    }
+                });
+            }
         }
     }
     
@@ -598,6 +567,20 @@
         placeholder.setAttribute('role', 'button');
         placeholder.setAttribute('tabindex', '0');
         placeholder.setAttribute('data-youtube-src', iframe.src);
+        
+        // Store original dimensions
+        const width = iframe.width || iframe.getAttribute('width') || '560';
+        const height = iframe.height || iframe.getAttribute('height') || '315';
+        placeholder.setAttribute('data-width', width);
+        placeholder.setAttribute('data-height', height);
+        
+        // Store original iframe attributes that might be important for the theme
+        if (iframe.id) {
+            placeholder.setAttribute('data-original-id', iframe.id);
+        }
+        if (iframe.className) {
+            placeholder.setAttribute('data-original-class', iframe.className);
+        }
         
         // Get video title if available
         const title = iframe.getAttribute('title') || 'YouTube video';
@@ -652,7 +635,7 @@
     function restoreYouTubeEmbed(placeholder, originalSrc) {
         const iframe = document.createElement('iframe');
         
-        // Set common YouTube iframe attributes
+        // Set common YouTube iframe attributes - keep original src exactly as it was
         iframe.src = originalSrc;
         iframe.setAttribute('frameborder', '0');
         iframe.setAttribute('allowfullscreen', '');
@@ -664,8 +647,40 @@
         iframe.width = width;
         iframe.height = height;
         
+        // Copy any other attributes that might be important for the theme
+        const originalId = placeholder.getAttribute('data-original-id');
+        if (originalId) {
+            iframe.id = originalId;
+        }
+        
+        const originalClass = placeholder.getAttribute('data-original-class');
+        if (originalClass) {
+            iframe.className = originalClass;
+        }
+        
         // Replace placeholder with iframe
-        placeholder.parentNode.replaceChild(iframe, placeholder);
+        if (placeholder.parentNode) {
+            const parentElement = placeholder.parentNode;
+            parentElement.replaceChild(iframe, placeholder);
+            
+            // Trigger events to notify the theme that new content has been loaded
+            setTimeout(() => {
+                // Simple approach: trigger basic events for simple embeds
+                window.dispatchEvent(new Event('resize'));
+                
+                const event = new CustomEvent('gdpr:youtube:restored', {
+                    detail: { iframe: iframe, originalSrc: originalSrc },
+                    bubbles: true
+                });
+                document.dispatchEvent(event);
+                parentElement.dispatchEvent(event);
+                
+                if (window.jQuery) {
+                    window.jQuery(iframe).trigger('load');
+                    window.jQuery(document).trigger('gdpr:youtube:restored', [iframe]);
+                }
+            }, 100);
+        }
     }
     
     /**
