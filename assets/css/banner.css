@@ -319,22 +319,20 @@
 .gdpr-youtube-placeholder {
     transition: all 0.3s ease;
     position: absolute;
-    top: 50%;
+    bottom: 1.25rem;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     background: #f9f9f9;
     border: 0.125rem dashed #ccc;
     border-radius: 0.75rem;
-    padding: 2.5rem 1.25rem;
+    padding: 1rem 1.25rem;
     text-align: center;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 12.5rem;
     width: 80%;
-    height: 10%;
     opacity: 90%;
     z-index: 1000;
 }
@@ -347,14 +345,6 @@
 .gdpr-youtube-placeholder:focus {
     outline: 0.125rem solid #000;
     outline-offset: 0.125rem;
-}
-
-.gdpr-youtube-placeholder::before {
-    content: "▶";
-    font-size: 3rem;
-    color: #ff0000;
-    margin-bottom: 1rem;
-    display: block;
 }
 
 .gdpr-youtube-placeholder-text {

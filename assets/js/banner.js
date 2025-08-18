@@ -595,7 +595,7 @@
         noticeElement.className = 'gdpr-youtube-placeholder-notice';
         noticeElement.textContent = gdprTexts.youtubeNotice || 'This content is blocked until you accept embedded media cookies.';
         
-        placeholder.appendChild(textElement);
+        // placeholder.appendChild(textElement);
         placeholder.appendChild(noticeElement);
         
         // Add click handler
