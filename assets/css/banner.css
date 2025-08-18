@@ -330,6 +330,10 @@
     justify-content: center;
     min-height: 12.5rem;
     position: relative;
+    width: 100%;
+    height: 100%;
+    opacity: 90%;
+    z-index: 1000;
 }
 
 .gdpr-youtube-placeholder:hover {

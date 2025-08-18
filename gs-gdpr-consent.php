@@ -2,7 +2,7 @@
 /*
 Plugin Name: GS GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 2.0.3
+Version: 2.0.4
 Author: Growskills
 Text Domain: gs-gdpr-consent
 Domain Path: /languages
@@ -24,7 +24,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '2.0.3');
+define('GDPR_CONSENT_VERSION', '2.0.4');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -334,7 +334,7 @@ class GDPR_Consent_Manager {
             'save' => $this->get_text('Save Settings', 'Instellingen opslaan'),
             'close' => $this->get_text('Close', 'Sluiten'),
             'youtubeLoadButton' => $this->get_text('Click to load YouTube video', 'Klik om YouTube-video te laden'),
-            'youtubeNotice' => $this->get_text('This content is blocked until you accept embedded media cookies.', 'Deze content is geblokkeerd totdat u cookies voor ingesloten media accepteert.')
+            'youtubeNotice' => $this->get_text('This content is blocked until you accept embedded media cookies. Click here to change your settings.', 'Deze content is geblokkeerd totdat u cookies voor ingesloten media accepteert. Klik hier om uw instellingen te wijzigen.')
         ));
     }
 
