@@ -76,15 +76,26 @@
     }
     
     /**
-     * Load consent from localStorage
+     * Load consent from localStorage and cookie
      */
     function loadConsent() {
         try {
-            const stored = localStorage.getItem(STORAGE_KEY);
+            // First try localStorage
+            let stored = localStorage.getItem(STORAGE_KEY);
+            
+            // If not in localStorage, try cookie
+            if (!stored) {
+                const cookieMatch = document.cookie.match(/(?:^|; )gdprConsent=([^;]*)/);
+                if (cookieMatch) {
+                    stored = decodeURIComponent(cookieMatch[1]);
+                }
+            }
+            
             if (stored) {
                 const parsed = JSON.parse(stored);
                 if (parsed && parsed.timestamp) {
                     consentData = { ...consentData, ...parsed };
+                    console.log('GDPR: Consent loaded:', consentData);
                 }
             }
         } catch (e) {
@@ -93,12 +104,22 @@
     }
     
     /**
-     * Save consent to localStorage
+     * Save consent to localStorage and cookie
      */
     function saveConsent() {
         try {
             consentData.timestamp = Date.now();
+            
+            // Save to localStorage
             localStorage.setItem(STORAGE_KEY, JSON.stringify(consentData));
+            
+            // Also save to cookie for PHP to read
+            const expireDate = new Date();
+            expireDate.setMonth(expireDate.getMonth() + CONSENT_EXPIRY_MONTHS);
+            
+            document.cookie = `gdprConsent=${encodeURIComponent(JSON.stringify(consentData))}; expires=${expireDate.toUTCString()}; path=/; SameSite=Lax`;
+            
+            console.log('GDPR: Consent saved:', consentData);
         } catch (e) {
             console.warn('GDPR Consent Manager: Error saving consent data', e);
         }
@@ -398,23 +419,92 @@
      * Load approved scripts based on consent
      */
     function loadApprovedScripts() {
-        // Check if gdprScripts is available (localized from PHP)
-        if (typeof gdprScripts === 'undefined') {
+        console.log('GDPR: loadApprovedScripts called');
+        console.log('GDPR: Current consent data:', consentData);
+        console.log('GDPR: gdprScripts available:', typeof gdprScripts !== 'undefined');
+        
+        if (typeof gdprScripts !== 'undefined') {
+            console.log('GDPR: gdprScripts content:', gdprScripts);
+        }
+        
+        // Check if we already have scripts available
+        if (typeof gdprScripts !== 'undefined') {
+            // Load scripts directly if available
+            if (consentData.statistics && gdprScripts.statistics) {
+                console.log('GDPR: Loading statistics script');
+                loadScript('statistics', gdprScripts.statistics);
+            }
+            
+            if (consentData.marketing && gdprScripts.marketing) {
+                console.log('GDPR: Loading marketing script');
+                loadScript('marketing', gdprScripts.marketing);
+            }
+            
+            if (consentData.embedded_media && gdprScripts.embedded_media) {
+                console.log('GDPR: Loading embedded_media script');
+                loadScript('embedded_media', gdprScripts.embedded_media);
+            }
+        } else {
+            // Scripts not available - fetch via AJAX
+            console.log('GDPR: Scripts not available, fetching via AJAX');
+            fetchScriptsViaAjax();
+        }
+    }
+    
+    /**
+     * Fetch scripts via AJAX based on current consent
+     */
+    function fetchScriptsViaAjax() {
+        console.log('GDPR: fetchScriptsViaAjax called');
+        console.log('GDPR: Current consent for AJAX:', consentData);
+        
+        if (typeof gdprAjax === 'undefined') {
+            console.warn('GDPR: AJAX configuration not available');
             return;
         }
         
-        // Load scripts for each approved category
-        if (consentData.statistics && gdprScripts.statistics) {
-            loadScript('statistics', gdprScripts.statistics);
-        }
+        console.log('GDPR: Making AJAX request to:', gdprAjax.url);
         
-        if (consentData.marketing && gdprScripts.marketing) {
-            loadScript('marketing', gdprScripts.marketing);
-        }
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('action', 'gdpr_get_scripts');
+        formData.append('nonce', gdprAjax.nonce);
+        formData.append('consent', JSON.stringify(consentData));
         
-        if (consentData.embedded_media && gdprScripts.embedded_media) {
-            loadScript('embedded_media', gdprScripts.embedded_media);
-        }
+        // Make AJAX request
+        fetch(gdprAjax.url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('GDPR: AJAX response received:', data);
+            
+            if (data.success && data.data) {
+                console.log('GDPR: Scripts received from AJAX:', data.data);
+                
+                // Load the scripts we received
+                if (consentData.statistics && data.data.statistics) {
+                    console.log('GDPR: Loading statistics script from AJAX');
+                    loadScript('statistics', data.data.statistics);
+                }
+                
+                if (consentData.marketing && data.data.marketing) {
+                    console.log('GDPR: Loading marketing script from AJAX');
+                    loadScript('marketing', data.data.marketing);
+                }
+                
+                if (consentData.embedded_media && data.data.embedded_media) {
+                    console.log('GDPR: Loading embedded_media script from AJAX');
+                    loadScript('embedded_media', data.data.embedded_media);
+                }
+            } else {
+                console.log('GDPR: AJAX request failed or no data received');
+            }
+        })
+        .catch(error => {
+            console.error('GDPR: Failed to fetch scripts:', error);
+        });
     }
     
     /**

@@ -24,7 +24,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '2.0.0');
+define('GDPR_CONSENT_VERSION', '2.0.1');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -96,6 +96,10 @@ class GDPR_Consent_Manager {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('wp_footer', array($this, 'render_banner'));
         add_action('wp_head', array($this, 'block_scripts'), 1);
+        
+        // Add AJAX handlers for fetching scripts after consent
+        add_action('wp_ajax_gdpr_get_scripts', array($this, 'ajax_get_scripts'));
+        add_action('wp_ajax_nopriv_gdpr_get_scripts', array($this, 'ajax_get_scripts'));
     }
     
     /**
@@ -280,7 +284,38 @@ class GDPR_Consent_Manager {
             'visible_categories' => array('statistics', 'marketing', 'embedded_media')
         ));
         
-        wp_localize_script('gdpr-consent-banner', 'gdprScripts', $consent_scripts);
+        // Check if user already has consent - only pass scripts if they do
+        $has_consent = false;
+        $current_consent = array();
+        if (isset($_COOKIE['gdprConsent'])) {
+            $consent_data = json_decode(stripslashes($_COOKIE['gdprConsent']), true);
+            if ($consent_data && is_array($consent_data)) {
+                $has_consent = true;
+                $current_consent = $consent_data;
+            }
+        }
+        
+        // Prepare scripts based on consent status
+        $decoded_scripts = array();
+        if ($has_consent) {
+            // User has given consent - decode only the scripts they've approved
+            $decoded_scripts['statistics'] = (!empty($consent_scripts['statistics']) && isset($current_consent['statistics']) && $current_consent['statistics']) ? base64_decode($consent_scripts['statistics']) : '';
+            $decoded_scripts['marketing'] = (!empty($consent_scripts['marketing']) && isset($current_consent['marketing']) && $current_consent['marketing']) ? base64_decode($consent_scripts['marketing']) : '';
+            $decoded_scripts['embedded_media'] = (!empty($consent_scripts['embedded_media']) && isset($current_consent['embedded_media']) && $current_consent['embedded_media']) ? base64_decode($consent_scripts['embedded_media']) : '';
+        } else {
+            // No consent yet - don't pass any scripts
+            $decoded_scripts['statistics'] = '';
+            $decoded_scripts['marketing'] = '';
+            $decoded_scripts['embedded_media'] = '';
+        }
+        $decoded_scripts['visible_categories'] = isset($consent_scripts['visible_categories']) ? $consent_scripts['visible_categories'] : array('statistics', 'marketing', 'embedded_media');
+        
+        // Pass scripts to JavaScript (only approved ones if consent exists, empty if no consent)
+        wp_localize_script('gdpr-consent-banner', 'gdprScripts', $decoded_scripts);
+        wp_localize_script('gdpr-consent-banner', 'gdprAjax', array(
+            'url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('gdpr_get_scripts')
+        ));
         wp_localize_script('gdpr-consent-banner', 'gdprTexts', array(
             'cookieBannerTitle' => $this->get_text('We use cookies', 'Wij gebruiken cookies'),
             'cookieBannerText' => $this->get_text('This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow.', 'Deze website gebruikt cookies om ervoor te zorgen dat u de beste ervaring op onze website krijgt. U kunt kiezen welke categorieën cookies u toestaat.'),
@@ -304,7 +339,63 @@ class GDPR_Consent_Manager {
     }
 
     public function block_scripts() {
-        echo "<!-- GDPR Consent Manager: Scripts will be loaded after consent -->\n";
+        // Check if user already has consent
+        $has_consent = false;
+        if (isset($_COOKIE['gdprConsent'])) {
+            $consent = json_decode(stripslashes($_COOKIE['gdprConsent']), true);
+            if ($consent && isset($consent['marketing']) && $consent['marketing']) {
+                $has_consent = true;
+            }
+        }
+        
+        // Only block if no marketing consent
+        if (!$has_consent) {
+            ?>
+            <script>
+            // GDPR Consent Manager - Block tracking scripts
+            window.gdprConsentRequired = true;
+            
+            // Block Facebook Pixel
+            if (typeof window.fbq === 'undefined') {
+                window.fbq = function() { 
+                    console.log('GDPR: Facebook Pixel blocked - marketing consent required'); 
+                    return false;
+                };
+                window.fbq.queue = [];
+                window.fbq.loaded = false;
+                window.fbq.version = '2.0';
+                window.fbq.callMethod = function() {
+                    console.log('GDPR: Facebook Pixel callMethod blocked');
+                    return false;
+                };
+            }
+            
+            // Block Google Analytics gtag
+            if (typeof window.gtag === 'undefined') {
+                window.gtag = function() { 
+                    console.log('GDPR: Google Analytics (gtag) blocked - statistics consent required'); 
+                };
+            }
+            
+            // Block legacy Google Analytics
+            if (typeof window.ga === 'undefined') {
+                window.ga = function() { 
+                    console.log('GDPR: Google Analytics (ga) blocked - statistics consent required'); 
+                };
+            }
+            
+            // Prevent dataLayer initialization for GTM
+            if (typeof window.dataLayer === 'undefined') {
+                window.dataLayer = [];
+                window.dataLayer.push = function() {
+                    console.log('GDPR: Google Tag Manager blocked - consent required');
+                };
+            }
+            
+            console.log('GDPR Consent Manager: Tracking scripts blocked - consent required');
+            </script>
+            <?php
+        }
     }
     public function render_banner() {
         ?>
@@ -478,15 +569,18 @@ class GDPR_Consent_Manager {
         $sanitized = array();
         
         if (isset($input['statistics'])) {
-            $sanitized['statistics'] = wp_kses_post($input['statistics']);
+            // Store scripts safely - encode to prevent execution
+            $sanitized['statistics'] = base64_encode($input['statistics']);
         }
         
         if (isset($input['marketing'])) {
-            $sanitized['marketing'] = wp_kses_post($input['marketing']);
+            // Store scripts safely - encode to prevent execution
+            $sanitized['marketing'] = base64_encode($input['marketing']);
         }
         
         if (isset($input['embedded_media'])) {
-            $sanitized['embedded_media'] = wp_kses_post($input['embedded_media']);
+            // Store scripts safely - encode to prevent execution
+            $sanitized['embedded_media'] = base64_encode($input['embedded_media']);
         }
         
         // Sanitize smart detect option
@@ -517,7 +611,7 @@ class GDPR_Consent_Manager {
     
     public function statistics_scripts_callback() {
         $scripts = get_option('gdpr_consent_scripts', array());
-        $value = isset($scripts['statistics']) ? $scripts['statistics'] : '';
+        $value = isset($scripts['statistics']) ? base64_decode($scripts['statistics']) : '';
         ?>
         <textarea name="gdpr_consent_scripts[statistics]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
         <p class="description"><?php echo esc_html__('Add Google Analytics, tracking pixels, or other statistics scripts here.', 'gs-gdpr-consent'); ?></p>
@@ -525,7 +619,7 @@ class GDPR_Consent_Manager {
     }
     public function marketing_scripts_callback() {
         $scripts = get_option('gdpr_consent_scripts', array());
-        $value = isset($scripts['marketing']) ? $scripts['marketing'] : '';
+        $value = isset($scripts['marketing']) ? base64_decode($scripts['marketing']) : '';
         ?>
         <textarea name="gdpr_consent_scripts[marketing]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
         <p class="description"><?php echo esc_html__('Add Facebook Pixel, Google Ads, or other marketing scripts here.', 'gs-gdpr-consent'); ?></p>
@@ -533,7 +627,7 @@ class GDPR_Consent_Manager {
     }
     public function embedded_media_scripts_callback() {
         $scripts = get_option('gdpr_consent_scripts', array());
-        $value = isset($scripts['embedded_media']) ? $scripts['embedded_media'] : '';
+        $value = isset($scripts['embedded_media']) ? base64_decode($scripts['embedded_media']) : '';
         ?>
         <textarea name="gdpr_consent_scripts[embedded_media]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
         <p class="description"><?php echo esc_html__('Add scripts required for embedded content like YouTube, Vimeo, etc.', 'gs-gdpr-consent'); ?></p>
@@ -655,6 +749,47 @@ class GDPR_Consent_Manager {
             echo '<p><a href="' . remove_query_arg('gdpr_debug') . '">Close Debug</a></p>';
             echo '</div>';
         }
+    }
+    
+    /**
+     * AJAX handler to get scripts after consent is given
+     */
+    public function ajax_get_scripts() {
+        // Verify nonce for security
+        if (!wp_verify_nonce($_POST['nonce'], 'gdpr_get_scripts')) {
+            wp_die('Security check failed');
+        }
+        
+        // Get consent data from POST
+        $consent_data = isset($_POST['consent']) ? json_decode(stripslashes($_POST['consent']), true) : array();
+        
+        if (!is_array($consent_data)) {
+            wp_die('Invalid consent data');
+        }
+        
+        // Get stored scripts
+        $consent_scripts = get_option('gdpr_consent_scripts', array(
+            'statistics' => '',
+            'marketing' => '',
+            'embedded_media' => ''
+        ));
+        
+        // Prepare response with only approved scripts
+        $response = array();
+        
+        if (isset($consent_data['statistics']) && $consent_data['statistics'] && !empty($consent_scripts['statistics'])) {
+            $response['statistics'] = base64_decode($consent_scripts['statistics']);
+        }
+        
+        if (isset($consent_data['marketing']) && $consent_data['marketing'] && !empty($consent_scripts['marketing'])) {
+            $response['marketing'] = base64_decode($consent_scripts['marketing']);
+        }
+        
+        if (isset($consent_data['embedded_media']) && $consent_data['embedded_media'] && !empty($consent_scripts['embedded_media'])) {
+            $response['embedded_media'] = base64_decode($consent_scripts['embedded_media']);
+        }
+        
+        wp_send_json_success($response);
     }
 }
 new GDPR_Consent_Manager();
