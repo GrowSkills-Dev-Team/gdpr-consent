@@ -1,0 +1,66 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: gs-gdpr-consent\n"
+"POT-Creation-Date: 2025-08-19 12:00+0000\n"
+"PO-Revision-Date: 2025-08-19 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Dutch\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "We use cookies"
+msgstr "Wij gebruiken cookies"
+
+msgid "This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow."
+msgstr "Deze website gebruikt cookies om ervoor te zorgen dat u de beste ervaring op onze website krijgt. U kunt kiezen welke categorieën cookies u toestaat."
+
+msgid "Accept All"
+msgstr "Alles accepteren"
+
+msgid "Settings"
+msgstr "Instellingen"
+
+msgid "Cookie Settings"
+msgstr "Cookie-instellingen"
+
+msgid "Choose which cookies you want to accept. You can change these settings at any time."
+msgstr "Kies welke cookies u wilt accepteren. U kunt deze instellingen op elk moment wijzigen."
+
+msgid "Functional"
+msgstr "Functioneel"
+
+msgid "These cookies are necessary for the website to function and cannot be switched off."
+msgstr "Deze cookies zijn noodzakelijk voor het functioneren van de website en kunnen niet worden uitgeschakeld."
+
+msgid "Statistics"
+msgstr "Statistieken"
+
+msgid "These cookies help us understand how visitors interact with our website."
+msgstr "Deze cookies helpen ons begrijpen hoe bezoekers omgaan met onze website."
+
+msgid "Marketing"
+msgstr "Marketing"
+
+msgid "These cookies are used to show you relevant advertising."
+msgstr "Deze cookies worden gebruikt om u relevante advertenties te tonen."
+
+msgid "Embedded Media"
+msgstr "Ingesloten media"
+
+msgid "These cookies allow embedded content like YouTube videos."
+msgstr "Deze cookies maken ingesloten content zoals YouTube-video's mogelijk."
+
+msgid "Save Settings"
+msgstr "Instellingen opslaan"
+
+msgid "Close"
+msgstr "Sluiten"
+
+msgid "Click to load YouTube video"
+msgstr "Klik om YouTube-video te laden"
+
+msgid "This content is blocked until you accept embedded media cookies. Click here to change your settings."
+msgstr "Deze content is geblokkeerd totdat u cookies voor ingesloten media accepteert. Klik hier om uw instellingen te wijzigen."
