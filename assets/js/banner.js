@@ -3,6 +3,7 @@
  * Vanilla JS implementation with full accessibility support
  */
 
+
 (function() {
     'use strict';
     
@@ -88,7 +89,7 @@
                 }
             }
         } catch (e) {
-            console.warn('GDPR Consent Manager: Error loading consent data', e);
+            // Error loading consent data
         }
     }
     
@@ -108,7 +109,7 @@
             
             document.cookie = `gdprConsent=${encodeURIComponent(JSON.stringify(consentData))}; expires=${expireDate.toUTCString()}; path=/; SameSite=Lax`;
         } catch (e) {
-            console.warn('GDPR Consent Manager: Error saving consent data', e);
+            // Error saving consent data
         }
     }
     
@@ -154,13 +155,18 @@
         
         // Wait for animation to finish, then hide and show float button
         setTimeout(() => {
+            // Show float button before hiding banner
+            showFloatButton();
+            // Move focus to floatButton for accessibility
+            if (floatButton) {
+                floatButton.focus();
+            } else {
+                document.body.focus();
+            }
             banner.style.display = 'none';
             banner.setAttribute('aria-hidden', 'true');
             banner.classList.remove('gdpr-banner-hiding');
             document.body.classList.remove('gdpr-banner-visible');
-            
-            // Show float button after banner is hidden
-            showFloatButton();
         }, 500);
     }
     
@@ -301,14 +307,15 @@
      * Setup all event listeners
      */
     function setupEventListeners() {
-        // Banner buttons
-        const acceptAllBtn = document.getElementById('gdpr-accept-all');
-        const settingsBtn = document.getElementById('gdpr-settings');
-        
+    // Banner buttons
+    const acceptAllBtn = document.getElementById('gdpr-accept-all');
+    const settingsBtn = document.getElementById('gdpr-settings');
+    const saveBtn = document.getElementById('gdpr-save-settings');
         if (acceptAllBtn) {
-            acceptAllBtn.addEventListener('click', handleAcceptAll);
+            acceptAllBtn.addEventListener('click', function(e) {
+                handleAcceptAll(e);
+            });
         }
-        
         if (settingsBtn) {
             settingsBtn.addEventListener('click', handleShowSettings);
         }
@@ -320,7 +327,6 @@
         
         // Modal buttons
         const closeBtn = document.getElementById('gdpr-modal-close');
-        const saveBtn = document.getElementById('gdpr-save-settings');
         
         if (closeBtn) {
             closeBtn.addEventListener('click', hideModal);
@@ -346,6 +352,32 @@
         });
     }
     
+    // Disable blockers after consent is given
+    function disableBlockersAfterConsent() {
+        // Unblock Facebook Pixel
+        if (window.fbq && window.fbq.callMethod) {
+            window.fbq.loaded = true;
+        }
+        // Unblock Google Analytics gtag
+        if (window.gtag) {
+            window.gtag = function() {
+                // Native gtag will be loaded by injected script
+            };
+        }
+        // Unblock legacy Google Analytics
+        if (window.ga) {
+            window.ga = function() {
+                // Native ga will be loaded by injected script
+            };
+        }
+        // Unblock Google Tag Manager
+        if (window.dataLayer && window.dataLayer.push) {
+            window.dataLayer.push = Array.prototype.push;
+        }
+        // Remove consentRequired flag
+        window.gdprConsentRequired = false;
+    }
+    
     /**
      * Handle accept all button click
      */
@@ -357,11 +389,20 @@
             embedded_media: true,
             timestamp: Date.now()
         };
-        
         saveConsent();
         hideBanner();
         loadApprovedScripts();
         processYouTubeEmbeds();
+        disableBlockersAfterConsent();
+        injectTestScript();
+    }
+    
+    // Inject testscript bij statistics consent
+    function injectTestScript() {
+        const scriptTag = document.createElement('script');
+    scriptTag.text = "";
+        scriptTag.setAttribute('data-gdpr-category', 'statistics');
+        document.head.appendChild(scriptTag);
     }
     
     /**
@@ -400,19 +441,23 @@
      * Load approved scripts based on consent
      */
     function loadApprovedScripts() {
-        // Check if we already have scripts available
-        if (typeof gdprScripts !== 'undefined') {
-            // Load scripts directly if available
-            if (consentData.statistics && gdprScripts.statistics) {
+    if (typeof gdprScripts !== 'undefined') {
+            // Check if any scripts are present, otherwise fallback to AJAX
+            const hasStatistics = consentData.statistics && gdprScripts.statistics && gdprScripts.statistics.trim() !== '';
+            const hasMarketing = consentData.marketing && gdprScripts.marketing && gdprScripts.marketing.trim() !== '';
+            const hasEmbedded = consentData.embedded_media && gdprScripts.embedded_media && gdprScripts.embedded_media.trim() !== '';
+            if (hasStatistics) {
                 loadScript('statistics', gdprScripts.statistics);
             }
-            
-            if (consentData.marketing && gdprScripts.marketing) {
+            if (hasMarketing) {
                 loadScript('marketing', gdprScripts.marketing);
             }
-            
-            if (consentData.embedded_media && gdprScripts.embedded_media) {
+            if (hasEmbedded) {
                 loadScript('embedded_media', gdprScripts.embedded_media);
+            }
+            // If no scripts present, fetch via AJAX
+            if (!hasStatistics && !hasMarketing && !hasEmbedded) {
+                fetchScriptsViaAjax();
             }
         } else {
             // Scripts not available - fetch via AJAX
@@ -439,7 +484,9 @@
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            return response.json();
+        })
         .then(data => {
             if (data.success && data.data) {
                 // Load the scripts we received
@@ -457,10 +504,19 @@
             }
         })
         .catch(error => {
-            console.error('GDPR: Failed to fetch scripts:', error);
+            // Failed to fetch scripts
         });
     }
     
+    /**
+     * Decode HTML entities in a string
+     */
+    function decodeHtmlEntities(str) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = str;
+        return txt.value;
+    }
+
     /**
      * Load a script for a specific category
      */
@@ -468,43 +524,44 @@
         if (!scriptContent || scriptContent.trim() === '') {
             return;
         }
-        
         // Check if script already loaded
         if (document.querySelector(`[data-gdpr-category="${category}"]`)) {
             return;
         }
-        
         try {
-            // Create a container div for the script content
-            const container = document.createElement('div');
-            container.setAttribute('data-gdpr-category', category);
-            container.innerHTML = scriptContent;
-            
-            // Append to head
-            document.head.appendChild(container);
-            
-            // Execute any script tags
-            const scripts = container.querySelectorAll('script');
-            scripts.forEach(script => {
-                const newScript = document.createElement('script');
-                
-                // Copy attributes
-                Array.from(script.attributes).forEach(attr => {
-                    newScript.setAttribute(attr.name, attr.value);
-                });
-                
-                // Copy content
-                if (script.src) {
-                    newScript.src = script.src;
-                } else {
-                    newScript.textContent = script.textContent;
+            // Vind alle <script> blokken in de content
+            const scriptRegex = /<script(.*?)>([\s\S]*?)<\/script>/gi;
+            let match;
+            let injected = false;
+            while ((match = scriptRegex.exec(scriptContent))) {
+                const scriptTag = document.createElement('script');
+                // Zet eventuele attributen (zoals async, src)
+                const attrRegex = /(\w+)(=["'](.*?)["'])?/g;
+                let attrMatch;
+                while ((attrMatch = attrRegex.exec(match[1]))) {
+                    if (attrMatch[1] !== undefined && attrMatch[3] !== undefined) {
+                        scriptTag.setAttribute(attrMatch[1], attrMatch[3]);
+                    } else if (attrMatch[1] !== undefined) {
+                        scriptTag.setAttribute(attrMatch[1], '');
+                    }
                 }
-                
-                // Replace old script with new one
-                script.parentNode.replaceChild(newScript, script);
+                scriptTag.setAttribute('data-gdpr-category', category);
+                scriptTag.text = match[2];
+                document.head.appendChild(scriptTag);
+                injected = true;
+            }
+            // Injecteer overige HTML (zoals img, noscript) direct in body
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = scriptContent;
+            Array.from(tempDiv.childNodes).forEach(node => {
+                if (node.nodeName === 'IMG' || node.nodeName === 'NOSCRIPT') {
+                    document.body.appendChild(node.cloneNode(true));
+                    injected = true;
+                }
             });
+            // ...
         } catch (e) {
-            console.warn(`GDPR Consent Manager: Error loading ${category} scripts`, e);
+            // Error loading scripts
         }
     }
     
@@ -750,7 +807,41 @@
         return { ...consentData };
     };
     
-    // Initialize when DOM is ready
-    init();
+    // Debug: Confirm we reach DOMContentLoaded listener setup
+    document.addEventListener('DOMContentLoaded', init);
+
+    // ...
     
+    // Show admin warning if CSP blocks scripts
+    function showCspAdminWarning() {
+        if (typeof window.gdprCspWarningShown !== 'undefined') return;
+        window.gdprCspWarningShown = true;
+        // Only show for admins (simple check: WP admin bar present)
+        if (!document.getElementById('wpadminbar')) return;
+        const warning = document.createElement('div');
+        warning.style.background = '#fff3cd';
+        warning.style.color = '#856404';
+        warning.style.border = '0.0625rem solid #ffeeba';
+        warning.style.padding = '1rem';
+        warning.style.margin = '1rem';
+        warning.style.fontSize = '1rem';
+        warning.style.zIndex = '99999';
+        warning.innerHTML = '<strong>GDPR Consent Manager:</strong> Externe scripts worden mogelijk geblokkeerd door de Content Security Policy (CSP) van deze site. Voeg de benodigde domeinen toe aan de <code>script-src</code> directive in je CSP. Voorbeeld:<br><code>script-src \'self\' https://www.googletagmanager.com https://www.youtube.com https://connect.facebook.net;</code><br>Zie de plugin documentatie voor meer info.';
+        document.body.appendChild(warning);
+    }
+
+    // Detect CSP blocking (simple test: try een extern script laden)
+    function testCspBlocking() {
+        const testScript = document.createElement('script');
+        testScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-TESTCSP';
+        testScript.onerror = function() {
+            showCspAdminWarning();
+        };
+        document.head.appendChild(testScript);
+    }
+
+    // Run CSP test alleen voor admins
+    if (document.getElementById('wpadminbar')) {
+        testCspBlocking();
+    }
 })();

@@ -2,7 +2,7 @@
 /*
 Plugin Name: GS GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 2.0.9
+Version: 2.1.0
 Author: Growskills
 Text Domain: gs-gdpr-consent
 Domain Path: /languages
@@ -24,7 +24,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '2.0.9');
+define('GDPR_CONSENT_VERSION', '2.1.0');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -35,6 +35,7 @@ class GDPR_Consent_Manager {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('wp_footer', array($this, 'debug_embed_detection'));
+        add_action('admin_notices', array($this, 'csp_admin_warning'));
         
         // Initialize conditionally based on settings and content
         $this->maybe_initialize_frontend();
@@ -689,6 +690,12 @@ class GDPR_Consent_Manager {
     
     public function settings_page() {
         include_once GDPR_CONSENT_PLUGIN_DIR . 'includes/settings-page.php';
+    }
+    
+    // Admin CSP warning on settings page
+    public function csp_admin_warning() {
+        if (!isset($_GET['page']) || $_GET['page'] !== 'gdpr-consent-settings') return;
+        echo '<div class="notice notice-warning"><p><strong>GDPR Consent Manager:</strong> Externe scripts kunnen worden geblokkeerd door de Content Security Policy (CSP) van deze site. Voeg de benodigde domeinen toe aan de <code>script-src</code> directive in je CSP. Voorbeeld:<br><code>script-src \'self\' https://www.googletagmanager.com https://www.youtube.com https://connect.facebook.net;</code><br>Zie de plugin documentatie voor meer info.</p></div>';
     }
     
     private function create_mo_file() {
