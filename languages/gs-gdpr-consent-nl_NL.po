@@ -1,21 +1,12 @@
-msgid ""
-msgstr ""
-"Project-Id-Version: gs-gdpr-consent\n"
-"POT-Creation-Date: 2025-08-19 12:00+0000\n"
-"PO-Revision-Date: 2025-08-19 12:00+0000\n"
-"Last-Translator: \n"
-"Language-Team: Dutch\n"
-"Language: nl_NL\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+msgctxt "cookie policy link"
+msgid "Read our <a href=\"%s\" target=\"_blank\" rel=\"noopener\">cookie policy</a>."
+msgstr "Lees ons <a href=\"%s\" target=\"_blank\" rel=\"noopener\">cookiebeleid</a>."
+
+msgid "This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow."
+msgstr "Deze website gebruikt cookies voor een optimale werking en statistieken. Je kunt zelf kiezen welke categorieën cookies je toestaat."
 
 msgid "We use cookies"
 msgstr "Wij gebruiken cookies"
-
-msgid "This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow."
-msgstr "Deze website gebruikt cookies om ervoor te zorgen dat u de beste ervaring op onze website krijgt. U kunt kiezen welke categorieën cookies u toestaat."
 
 msgid "Accept All"
 msgstr "Alles accepteren"

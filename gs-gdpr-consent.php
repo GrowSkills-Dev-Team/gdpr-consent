@@ -2,7 +2,7 @@
 /*
 Plugin Name: GS GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 2.1.0
+Version: 2.1.1
 Author: Growskills
 Text Domain: gs-gdpr-consent
 Domain Path: /languages
@@ -24,11 +24,28 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '2.1.0');
+define('GDPR_CONSENT_VERSION', '2.1.1');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 class GDPR_Consent_Manager {
+    public function cookie_policy_page_callback() {
+        $scripts = get_option('gdpr_consent_scripts', array());
+        $selected = isset($scripts['cookie_policy_page']) ? $scripts['cookie_policy_page'] : '';
+        $pages = get_pages(array('sort_column' => 'post_title', 'sort_order' => 'asc'));
+        echo '<select name="gdpr_consent_scripts[cookie_policy_page]">';
+        echo '<option value="">' . esc_html__('-- Selecteer een pagina --', 'gs-gdpr-consent') . '</option>';
+        foreach ($pages as $page) {
+            printf(
+                '<option value="%d" %s>%s</option>',
+                esc_attr($page->ID),
+                selected($selected, $page->ID, false),
+                esc_html($page->post_title)
+            );
+        }
+        echo '</select>';
+        echo '<p class="description">' . esc_html__('Kies de pagina waar je cookiebeleid staat. Deze wordt gelinkt in de cookiebanner.', 'gs-gdpr-consent') . '</p>';
+    }
     
     public function __construct() {
         add_action('init', array($this, 'load_textdomain'));
@@ -264,6 +281,7 @@ class GDPR_Consent_Manager {
     }
     public function load_textdomain() {
         $locale = determine_locale();
+        $this->create_mo_file();
         load_plugin_textdomain('gs-gdpr-consent', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
 
@@ -403,12 +421,26 @@ class GDPR_Consent_Manager {
         }
     }
     public function render_banner() {
+        $options = get_option('gdpr_consent_scripts', array());
+        $policy_page_id = isset($options['cookie_policy_page']) ? absint($options['cookie_policy_page']) : 0;
+        $policy_url = '';
+        if ($policy_page_id) {
+            $policy_url = get_permalink($policy_page_id);
+        }
         ?>
         <div id="gdpr-consent-banner" class="gdpr-banner" role="dialog" aria-labelledby="gdpr-banner-title" aria-describedby="gdpr-banner-description" style="display: none;">
             <div class="gdpr-banner-content">
                 <div class="gdpr-banner-text">
                     <h2 id="gdpr-banner-title"><?php echo esc_html(__('We use cookies', 'gs-gdpr-consent')); ?></h2>
-                    <p id="gdpr-banner-description"><?php echo esc_html(__('This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow.', 'gs-gdpr-consent')); ?></p>
+                    <p id="gdpr-banner-description">
+                        <?php echo esc_html(__('This website uses cookies to ensure you get the best experience on our website. You can choose which categories of cookies you allow.', 'gs-gdpr-consent')); ?>
+                        <?php if ($policy_url): ?>
+                            <?php echo ' ' . sprintf(
+                                _x('Read our <a href="%s" target="_blank" rel="noopener">cookie policy</a>.', 'cookie policy link', 'gs-gdpr-consent'),
+                                esc_url($policy_url)
+                            ); ?>
+                        <?php endif; ?>
+                    </p>
                 </div>
                 <div class="gdpr-banner-buttons">
                     <button id="gdpr-accept-all" class="gdpr-btn gdpr-btn-primary" type="button">
@@ -526,6 +558,15 @@ class GDPR_Consent_Manager {
             array($this, 'scripts_section_callback'),
             'gdpr-consent-settings'
         );
+
+        // Add cookie policy page setting
+        add_settings_field(
+            'cookie_policy_page',
+            __('Cookiebeleid pagina', 'gs-gdpr-consent'),
+            array($this, 'cookie_policy_page_callback'),
+            'gdpr-consent-settings',
+            'gdpr_consent_scripts_section'
+        );
         
         add_settings_field(
             'statistics_scripts',
@@ -568,6 +609,7 @@ class GDPR_Consent_Manager {
             'gdpr-consent-settings',
             'gdpr_consent_scripts_section'
         );
+
     }
     
     public function sanitize_scripts($input) {
@@ -587,6 +629,11 @@ class GDPR_Consent_Manager {
             // Store scripts safely - encode to prevent execution
             $sanitized['embedded_media'] = base64_encode($input['embedded_media']);
         }
+        
+            // Sanitize cookie policy page
+            if (isset($input['cookie_policy_page'])) {
+                $sanitized['cookie_policy_page'] = absint($input['cookie_policy_page']);
+            }
         
         // Sanitize smart detect option
         if (isset($input['smart_detect'])) {
@@ -699,16 +746,13 @@ class GDPR_Consent_Manager {
     }
     
     private function create_mo_file() {
-        $po_file = dirname(__FILE__) . '/languages/gdpr-consent-nl_NL.po';
-        $mo_file = dirname(__FILE__) . '/languages/gdpr-consent-nl_NL.mo';
-        
+        $po_file = dirname(__FILE__) . '/languages/gs-gdpr-consent-nl_NL.po';
+        $mo_file = dirname(__FILE__) . '/languages/gs-gdpr-consent-nl_NL.mo';
         if (!file_exists($po_file) || file_exists($mo_file)) {
             return;
         }
-        
         require_once(ABSPATH . 'wp-includes/pomo/po.php');
         require_once(ABSPATH . 'wp-includes/pomo/mo.php');
-        
         $po = new PO();
         if ($po->import_from_file($po_file)) {
             $mo = new MO();
