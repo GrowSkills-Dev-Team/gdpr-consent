@@ -389,12 +389,10 @@
             embedded_media: true,
             timestamp: Date.now()
         };
-        saveConsent();
-        hideBanner();
-        loadApprovedScripts();
-        processYouTubeEmbeds();
-        disableBlockersAfterConsent();
-        injectTestScript();
+    saveConsent();
+    hideBanner();
+    // Force reload to ensure scripts are loaded
+    window.location.reload();
     }
     
     // Inject testscript bij statistics consent
@@ -430,11 +428,11 @@
             timestamp: Date.now()
         };
         
-        saveConsent();
-        hideModal();
-        hideBanner();
-        loadApprovedScripts();
-        processYouTubeEmbeds();
+    saveConsent();
+    hideModal();
+    hideBanner();
+    // Force reload to ensure scripts are loaded
+    window.location.reload();
     }
     
     /**
