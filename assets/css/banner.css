@@ -171,6 +171,12 @@
     transition: all 0.3s ease;
 }
 
+.gdpr-modal-close svg{
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
 .gdpr-modal-close:hover {
     background: #f5f5f5;
     color: #000;

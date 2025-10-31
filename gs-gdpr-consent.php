@@ -2,7 +2,7 @@
 /*
 Plugin Name: GS GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 2.1.4
+Version: 2.1.5
 Author: Growskills
 Text Domain: gs-gdpr-consent
 Domain Path: /languages
@@ -24,7 +24,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '2.1.4');
+define('GDPR_CONSENT_VERSION', '2.1.5');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -462,7 +462,9 @@ class GDPR_Consent_Manager {
                 <div class="gdpr-modal-header">
                     <h2 id="gdpr-modal-title"><?php echo esc_html(__('Cookie Settings', 'gs-gdpr-consent')); ?></h2>
                     <button id="gdpr-modal-close" class="gdpr-modal-close" type="button" aria-label="<?php echo esc_attr(__('Close', 'gs-gdpr-consent')); ?>">
-                        &times;
+                        <svg id="Laag_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 14 14">
+                            <path d="M8.414,7L13.707,1.707c.391-.391.391-1.023,0-1.414s-1.023-.391-1.414,0l-5.293,5.293L1.707.293C1.316-.098.684-.098.293.293S-.098,1.316.293,1.707l5.293,5.293L.293,12.293c-.391.391-.391,1.023,0,1.414.195.195.451.293.707.293s.512-.098.707-.293l5.293-5.293,5.293,5.293c.195.195.451.293.707.293s.512-.098.707-.293c.391-.391.391-1.023,0-1.414l-5.293-5.293Z"/>
+                        </svg>
                     </button>
                 </div>
                 <div class="gdpr-modal-body">
