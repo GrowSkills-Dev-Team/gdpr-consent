@@ -466,7 +466,15 @@ class GDPR_Consent_Manager {
                     </button>
                 </div>
                 <div class="gdpr-modal-body">
-                    <p id="gdpr-modal-description"><?php echo esc_html(__('Choose which cookies you want to accept. You can change these settings at any time.', 'gs-gdpr-consent')); ?></p>
+                    <p id="gdpr-modal-description">
+                        <?php echo esc_html(__('Choose which cookies you want to accept. You can change these settings at any time.', 'gs-gdpr-consent')); ?>
+                        <?php if ($policy_url): ?>
+                            <?php echo ' ' . sprintf(
+                                _x('Read our <a href="%s" target="_blank" rel="noopener">cookie policy</a>.', 'cookie policy link', 'gs-gdpr-consent'),
+                                esc_url($policy_url)
+                            ); ?>
+                        <?php endif; ?>
+                    </p>
                     
                     <!-- Functional cookies (always shown) -->
                     <div class="gdpr-category">
