@@ -2,7 +2,7 @@
 /*
 Plugin Name: GS GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 2.1.6
+Version: 2.2.1
 Author: Growskills
 Text Domain: gs-gdpr-consent
 Domain Path: /languages
@@ -24,7 +24,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '2.1.6');
+define('GDPR_CONSENT_VERSION', '2.2.1');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -48,6 +48,9 @@ class GDPR_Consent_Manager {
     }
     
     public function __construct() {
+        // Migrate base64-encoded scripts to plain text (one-time migration)
+        $this->migrate_base64_scripts();
+        
         add_action('init', array($this, 'load_textdomain'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
@@ -56,6 +59,40 @@ class GDPR_Consent_Manager {
         
         // Initialize conditionally based on settings and content
         $this->maybe_initialize_frontend();
+    }
+    
+    /**
+     * Migrate base64-encoded scripts to plain text (one-time migration for v2.2.0)
+     */
+    public function migrate_base64_scripts() {
+        $migrated = get_option('gdpr_consent_migrated_v220', false);
+        if ($migrated) {
+            return; // Already migrated
+        }
+        
+        $scripts = get_option('gdpr_consent_scripts', array());
+        $updated = false;
+        
+        // Check and decode each script type if it appears to be base64
+        foreach (array('statistics', 'marketing', 'embedded_media') as $key) {
+            if (!empty($scripts[$key]) && base64_decode($scripts[$key], true) !== false) {
+                // Check if it's actually base64 (contains only valid base64 characters)
+                if (preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $scripts[$key])) {
+                    $decoded = base64_decode($scripts[$key]);
+                    // Verify the decoded content looks like HTML/JS
+                    if (strpos($decoded, '<') !== false || strpos($decoded, 'function') !== false) {
+                        $scripts[$key] = $decoded;
+                        $updated = true;
+                    }
+                }
+            }
+        }
+        
+        if ($updated) {
+            update_option('gdpr_consent_scripts', $scripts);
+        }
+        
+        update_option('gdpr_consent_migrated_v220', true);
     }
     
     /**
@@ -321,10 +358,10 @@ class GDPR_Consent_Manager {
         // Prepare scripts based on consent status
         $decoded_scripts = array();
         if ($has_consent) {
-            // User has given consent - decode only the scripts they've approved
-            $decoded_scripts['statistics'] = (!empty($consent_scripts['statistics']) && isset($current_consent['statistics']) && $current_consent['statistics']) ? base64_decode($consent_scripts['statistics']) : '';
-            $decoded_scripts['marketing'] = (!empty($consent_scripts['marketing']) && isset($current_consent['marketing']) && $current_consent['marketing']) ? base64_decode($consent_scripts['marketing']) : '';
-            $decoded_scripts['embedded_media'] = (!empty($consent_scripts['embedded_media']) && isset($current_consent['embedded_media']) && $current_consent['embedded_media']) ? base64_decode($consent_scripts['embedded_media']) : '';
+            // User has given consent - use the scripts they've approved
+            $decoded_scripts['statistics'] = (!empty($consent_scripts['statistics']) && isset($current_consent['statistics']) && $current_consent['statistics']) ? $consent_scripts['statistics'] : '';
+            $decoded_scripts['marketing'] = (!empty($consent_scripts['marketing']) && isset($current_consent['marketing']) && $current_consent['marketing']) ? $consent_scripts['marketing'] : '';
+            $decoded_scripts['embedded_media'] = (!empty($consent_scripts['embedded_media']) && isset($current_consent['embedded_media']) && $current_consent['embedded_media']) ? $consent_scripts['embedded_media'] : '';
         } else {
             // No consent yet - don't pass any scripts
             $decoded_scripts['statistics'] = '';
@@ -626,18 +663,18 @@ class GDPR_Consent_Manager {
         $sanitized = array();
         
         if (isset($input['statistics'])) {
-            // Store scripts safely - encode to prevent execution
-            $sanitized['statistics'] = base64_encode($input['statistics']);
+            // Sanitize but keep readable
+            $sanitized['statistics'] = wp_kses_post($input['statistics']);
         }
         
         if (isset($input['marketing'])) {
-            // Store scripts safely - encode to prevent execution
-            $sanitized['marketing'] = base64_encode($input['marketing']);
+            // Sanitize but keep readable
+            $sanitized['marketing'] = wp_kses_post($input['marketing']);
         }
         
         if (isset($input['embedded_media'])) {
-            // Store scripts safely - encode to prevent execution
-            $sanitized['embedded_media'] = base64_encode($input['embedded_media']);
+            // Sanitize but keep readable
+            $sanitized['embedded_media'] = wp_kses_post($input['embedded_media']);
         }
         
             // Sanitize cookie policy page
@@ -673,7 +710,7 @@ class GDPR_Consent_Manager {
     
     public function statistics_scripts_callback() {
         $scripts = get_option('gdpr_consent_scripts', array());
-        $value = isset($scripts['statistics']) ? base64_decode($scripts['statistics']) : '';
+        $value = isset($scripts['statistics']) ? $scripts['statistics'] : '';
         ?>
         <textarea name="gdpr_consent_scripts[statistics]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
         <p class="description"><?php echo esc_html__('Add Google Analytics, tracking pixels, or other statistics scripts here.', 'gs-gdpr-consent'); ?></p>
@@ -681,7 +718,7 @@ class GDPR_Consent_Manager {
     }
     public function marketing_scripts_callback() {
         $scripts = get_option('gdpr_consent_scripts', array());
-        $value = isset($scripts['marketing']) ? base64_decode($scripts['marketing']) : '';
+        $value = isset($scripts['marketing']) ? $scripts['marketing'] : '';
         ?>
         <textarea name="gdpr_consent_scripts[marketing]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
         <p class="description"><?php echo esc_html__('Add Facebook Pixel, Google Ads, or other marketing scripts here.', 'gs-gdpr-consent'); ?></p>
@@ -689,7 +726,7 @@ class GDPR_Consent_Manager {
     }
     public function embedded_media_scripts_callback() {
         $scripts = get_option('gdpr_consent_scripts', array());
-        $value = isset($scripts['embedded_media']) ? base64_decode($scripts['embedded_media']) : '';
+        $value = isset($scripts['embedded_media']) ? $scripts['embedded_media'] : '';
         ?>
         <textarea name="gdpr_consent_scripts[embedded_media]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($value); ?></textarea>
         <p class="description"><?php echo esc_html__('Add scripts required for embedded content like YouTube, Vimeo, etc.', 'gs-gdpr-consent'); ?></p>
@@ -839,15 +876,15 @@ class GDPR_Consent_Manager {
         $response = array();
         
         if (isset($consent_data['statistics']) && $consent_data['statistics'] && !empty($consent_scripts['statistics'])) {
-            $response['statistics'] = base64_decode($consent_scripts['statistics']);
+            $response['statistics'] = $consent_scripts['statistics'];
         }
         
         if (isset($consent_data['marketing']) && $consent_data['marketing'] && !empty($consent_scripts['marketing'])) {
-            $response['marketing'] = base64_decode($consent_scripts['marketing']);
+            $response['marketing'] = $consent_scripts['marketing'];
         }
         
         if (isset($consent_data['embedded_media']) && $consent_data['embedded_media'] && !empty($consent_scripts['embedded_media'])) {
-            $response['embedded_media'] = base64_decode($consent_scripts['embedded_media']);
+            $response['embedded_media'] = $consent_scripts['embedded_media'];
         }
         
         wp_send_json_success($response);
