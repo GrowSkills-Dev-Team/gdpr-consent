@@ -2,7 +2,7 @@
 /*
 Plugin Name: GS GDPR Consent Manager
 Description: GDPR/ePrivacy compliant cookie consent manager with script blocking and YouTube embed management.
-Version: 2.2.1
+Version: 2.2.2
 Author: Growskills
 Text Domain: gs-gdpr-consent
 Domain Path: /languages
@@ -24,7 +24,7 @@ $updateChecker = PucFactory::buildUpdateChecker(
 
 $updateChecker->getVcsApi()->enableReleaseAssets();
 
-define('GDPR_CONSENT_VERSION', '2.2.1');
+define('GDPR_CONSENT_VERSION', '2.2.2');
 define('GDPR_CONSENT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GDPR_CONSENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -663,18 +663,15 @@ class GDPR_Consent_Manager {
         $sanitized = array();
         
         if (isset($input['statistics'])) {
-            // Sanitize but keep readable
-            $sanitized['statistics'] = wp_kses_post($input['statistics']);
+            $sanitized['statistics'] = $this->sanitize_script_field($input['statistics']);
         }
         
         if (isset($input['marketing'])) {
-            // Sanitize but keep readable
-            $sanitized['marketing'] = wp_kses_post($input['marketing']);
+            $sanitized['marketing'] = $this->sanitize_script_field($input['marketing']);
         }
         
         if (isset($input['embedded_media'])) {
-            // Sanitize but keep readable
-            $sanitized['embedded_media'] = wp_kses_post($input['embedded_media']);
+            $sanitized['embedded_media'] = $this->sanitize_script_field($input['embedded_media']);
         }
         
             // Sanitize cookie policy page
@@ -702,6 +699,19 @@ class GDPR_Consent_Manager {
         }
         
         return $sanitized;
+    }
+
+    /**
+     * Preserve full script snippets from admin settings without stripping tags.
+     * These fields are only editable by users with manage_options capability.
+     */
+    private function sanitize_script_field($value) {
+        if (!is_string($value)) {
+            return '';
+        }
+
+        // Remove null bytes while keeping script markup intact.
+        return preg_replace('/\0+/', '', $value);
     }
     
     public function scripts_section_callback() {
